@@ -20,11 +20,13 @@ const authRoutes = require('./routes/auth');
 const classRoutes = require('./routes/classes');
 const studentRoutes = require('./routes/students');
 const paymentRoutes = require('./routes/payments');
+const dashboardRoutes = require('./routes/dashboard');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 const PORT = process.env.PORT || 5050;
 
