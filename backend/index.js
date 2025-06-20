@@ -5,7 +5,9 @@ require('dotenv').config({ path: './.env' });
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000' // Allow requests from our React app
+}));
 app.use(express.json()); // for parsing application/json
 
 // Log the JWT_SECRET to check if it's loaded
