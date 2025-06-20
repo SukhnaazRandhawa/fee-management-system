@@ -70,5 +70,31 @@ router.get('/', protect, async (req, res) => {
     }
 });
 
+// @route   GET /api/students/find/:studentId
+// @desc    Find a student by their unique student_id
+// @access  Private
+router.get('/find/:studentId', protect, async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const schoolId = req.school.schoolId;
+
+    // Join students and classes to ensure the student belongs to the logged-in school
+    const result = await db.query(
+      `SELECT s.* FROM students s
+       JOIN classes c ON s.class_id = c.id
+       WHERE s.student_id = $1 AND c.school_id = $2`,
+      [studentId, schoolId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 module.exports = router; 
