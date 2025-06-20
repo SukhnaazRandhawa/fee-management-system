@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
+require('dotenv').config({ path: './.env' });
 
 const app = express();
 
@@ -8,15 +8,21 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // for parsing application/json
 
+// Log the JWT_SECRET to check if it's loaded
+console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Loaded' : 'Not Loaded');
+
 // Health check route
 app.get('/', (req, res) => {
     res.send('Fee Management Backend is running!');
 });
 
 const authRoutes = require('./routes/auth');
-app.use('/api/auth', authRoutes);
+const classRoutes = require('./routes/classes');
 
-const PORT = process.env.PORT || 5000;
+app.use('/api/auth', authRoutes);
+app.use('/api/classes', classRoutes);
+
+const PORT = process.env.PORT || 5050;
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
