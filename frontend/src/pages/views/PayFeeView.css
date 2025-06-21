@@ -1,0 +1,57 @@
+.pay-fee-view {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    text-align: left;
+}
+
+.find-student-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.find-student-form input {
+    flex-grow: 1;
+}
+
+.student-details-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-top: 1.5rem;
+}
+
+.student-details-card h3 {
+    margin-top: 0;
+}
+
+.payment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* Re-using some styles from RegisterView.css for form elements */
+.pay-fee-view input,
+.pay-fee-view select,
+.pay-fee-view button {
+    padding: 0.8rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.pay-fee-view button {
+    background-color: #28a745;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+}
+
+.pay-fee-view button:hover {
+    background-color: #218838;
+} 
