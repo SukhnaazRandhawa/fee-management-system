@@ -15,13 +15,18 @@ const registerStudent = (studentData) => {
     return axios.post(API_URL + 'register', studentData, { headers: getAuthHeader() });
 };
 
-const findStudentById = (studentId) => {
-    return axios.get(API_URL + `find/${studentId}`, { headers: getAuthHeader() });
+const searchStudent = (searchData) => {
+    return axios.post(API_URL + 'search', searchData, { headers: getAuthHeader() });
+};
+
+const getStudentsByClass = (classId) => {
+    return axios.get(API_URL + `?classId=${classId}`, { headers: getAuthHeader() });
 };
 
 const studentService = {
     registerStudent,
-    findStudentById,
+    searchStudent,
+    getStudentsByClass,
 };
 
 export default studentService; 

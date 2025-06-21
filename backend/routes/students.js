@@ -70,31 +70,52 @@ router.get('/', protect, async (req, res) => {
     }
 });
 
-// @route   GET /api/students/find/:studentId
-// @desc    Find a student by their unique student_id
+// @route   POST /api/students/search
+// @desc    Search for a student by various criteria
 // @access  Private
-router.get('/find/:studentId', protect, async (req, res) => {
-  try {
-    const { studentId } = req.params;
-    const schoolId = req.school.schoolId;
+router.post('/search', protect, async (req, res) => {
+    try {
+        const schoolId = req.school.schoolId;
+        const { student_id, name, phone } = req.body;
 
-    // Join students and classes to ensure the student belongs to the logged-in school
-    const result = await db.query(
-      `SELECT s.* FROM students s
-       JOIN classes c ON s.class_id = c.id
-       WHERE s.student_id = $1 AND c.school_id = $2`,
-      [studentId, schoolId]
-    );
+        let queryText = `SELECT s.*, c.name as class_name 
+                         FROM students s
+                         JOIN classes c ON s.class_id = c.id
+                         WHERE c.school_id = $1`;
+        
+        const queryParams = [schoolId];
+        let paramIndex = 2;
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Student not found' });
+        if (student_id) {
+            queryText += ` AND s.student_id = $${paramIndex++}`;
+            queryParams.push(student_id);
+        } else if (name && phone) {
+            queryText += ` AND s.name ILIKE $${paramIndex++}`;
+            queryParams.push(`%${name}%`);
+            queryText += ` AND s.phone = $${paramIndex++}`;
+            queryParams.push(phone);
+        } else {
+            return res.status(400).json({ 
+                error: 'Invalid search. Please search by Student ID, or by both Student Name and Phone Number.' 
+            });
+        }
+        
+        const result = await db.query(queryText, queryParams);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'No student found matching your criteria.' });
+        }
+        if (result.rows.length > 1) {
+            return res.status(409).json({ error: 'Multiple students found. Please be more specific.' });
+        }
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
     }
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
-  }
 });
+
+// The old /find/:studentId route is now replaced by the /search route.
 
 module.exports = router; 

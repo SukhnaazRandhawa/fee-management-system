@@ -1,5 +1,5 @@
 .pay-fee-view {
-    max-width: 600px;
+    max-width: 800px;
     margin: 2rem auto;
     padding: 2rem;
     text-align: left;
@@ -7,12 +7,15 @@
 
 .find-student-form {
     display: flex;
+    flex-direction: column;
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
 
-.find-student-form input {
-    flex-grow: 1;
+.search-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
 }
 
 .student-details-card {

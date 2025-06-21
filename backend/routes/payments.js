@@ -41,4 +41,34 @@ router.post('/', protect, async (req, res) => {
   }
 });
 
+// @route   GET /api/payments/class/:classId
+// @desc    Get all payments for a specific class
+// @access  Private
+router.get('/class/:classId', protect, async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const schoolId = req.school.schoolId;
+
+    // First, verify this class belongs to the logged-in school
+    const classResult = await db.query('SELECT id FROM classes WHERE id = $1 AND school_id = $2', [classId, schoolId]);
+    if (classResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Class not found or not authorized.' });
+    }
+
+    const payments = await db.query(
+      `SELECT p.student_id, p.amount_paid, p.payment_date, p.academic_year
+       FROM payments p
+       JOIN students s ON p.student_id = s.id
+       WHERE s.class_id = $1`,
+      [classId]
+    );
+
+    res.json(payments.rows);
+  } catch (err)
+  {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router; 

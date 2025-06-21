@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import EditClassModal from '../../components/EditClassModal';
 import classService from '../../services/classService';
 
@@ -8,6 +9,7 @@ const ClassesView = () => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchClasses();
@@ -27,7 +29,12 @@ const ClassesView = () => {
     }
   };
 
-  const handleEditClick = (classData) => {
+  const handleCardClick = (classId) => {
+    navigate(`/dashboard/classes/${classId}`);
+  };
+
+  const handleEditClick = (e, classData) => {
+    e.stopPropagation(); // Prevent navigation when clicking the edit button
     setSelectedClass(classData);
     setIsModalOpen(true);
   };
@@ -56,11 +63,11 @@ const ClassesView = () => {
       <h2>Classes</h2>
       <div className="class-grid">
         {classes.map((c) => (
-          <div key={c.id} className="class-card">
+          <div key={c.id} className="class-card" onClick={() => handleCardClick(c.id)}>
             <h3>{c.name}</h3>
             <p>Monthly Fee: ${c.monthly_fee}</p>
             <p>Annual Fee: ${c.annual_fee}</p>
-            <button onClick={() => handleEditClick(c)}>Edit</button>
+            <button onClick={(e) => handleEditClick(e, c)}>Edit</button>
           </div>
         ))}
       </div>

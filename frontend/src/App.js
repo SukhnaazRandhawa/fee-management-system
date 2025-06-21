@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
 import ProtectedRoute from './components/ProtectedRoute';
+import ClassDetailsPage from './pages/ClassDetailsPage';
 import DashboardLayout from './pages/DashboardLayout';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -25,6 +26,7 @@ function App() {
             <Route path="" element={<DashboardLayout />}>
               <Route index element={<Navigate to="classes" replace />} />
               <Route path="classes" element={<ClassesView />} />
+              <Route path="classes/:classId" element={<ClassDetailsPage />} />
               <Route path="amount" element={<AmountView />} />
               <Route path="register" element={<RegisterView />} />
               <Route path="payfee" element={<PayFeeView />} />

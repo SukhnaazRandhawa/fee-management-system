@@ -15,8 +15,13 @@ const makePayment = (paymentData) => {
     return axios.post(API_URL, paymentData, { headers: getAuthHeader() });
 };
 
+const getPaymentsByClass = (classId) => {
+    return axios.get(API_URL + `class/${classId}`, { headers: getAuthHeader() });
+};
+
 const paymentService = {
     makePayment,
+    getPaymentsByClass,
 };
 
 export default paymentService; 
