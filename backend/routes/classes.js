@@ -49,4 +49,28 @@ router.put('/:id', protect, async (req, res) => {
   }
 });
 
+// @route   GET /api/classes/:id
+// @desc    Get a single class by its ID
+// @access  Private
+router.get('/:id', protect, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const schoolId = req.school.schoolId;
+
+    const classResult = await db.query(
+      'SELECT * FROM classes WHERE id = $1 AND school_id = $2',
+      [id, schoolId]
+    );
+
+    if (classResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Class not found or not authorized.' });
+    }
+
+    res.json(classResult.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router; 
