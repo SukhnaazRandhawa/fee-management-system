@@ -73,26 +73,39 @@ router.get('/summary', protect, async (req, res) => {
         let totalDue = 0;
         const currentDate = new Date();
         
+        const academicYearMonths = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+
         for (const student of allStudents) {
-            let studentOwes = 0;
-            const registrationDate = new Date(student.registration_date);
-            
-            if (registrationDate > currentDate) continue;
-
-            let academicYearStartYear = currentDate.getMonth() < 3 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
-            const academicYearStart = new Date(academicYearStartYear, 3, 1);
-
-            let chargeStartDate = registrationDate > academicYearStart ? registrationDate : academicYearStart;
-
-            studentOwes += parseFloat(student.annual_fee);
-            
-            let monthsToCharge = (currentDate.getFullYear() - chargeStartDate.getFullYear()) * 12 + (currentDate.getMonth() - chargeStartDate.getMonth()) + 1;
-            studentOwes += monthsToCharge * parseFloat(student.monthly_fee);
-
-            studentOwes += parseFloat(student.previous_year_balance);
-            
             const studentPaid = paymentsByStudent[student.student_db_id] || 0;
-            totalDue += (studentOwes - studentPaid);
+            const annualFee = parseFloat(student.annual_fee);
+            const monthlyFee = parseFloat(student.monthly_fee);
+
+            const currentMonth = currentDate.getMonth(); // 0-11 (Jan-Dec)
+            // Academic year is Apr-Mar. If current month is Jan, Feb, or Mar (0,1,2), we are in the academic year that started LAST calendar year.
+            const academicSessionStartYear = currentMonth < 3 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
+
+            // Determine how many months of the session have passed.
+            const monthsPassed = academicYearMonths.filter((_, index) => {
+                // index 0 is April, 1 is May ... 9 is Jan, 10 is Feb, 11 is Mar
+                const monthDate = new Date(academicSessionStartYear + (index >= 9 ? 1 : 0), (index + 3) % 12, 1);
+                return currentDate >= monthDate;
+            }).length;
+
+            let totalFeesDueSoFar = 0;
+            // Only add annual fee if the academic session has started.
+            const sessionStartDate = new Date(academicSessionStartYear, 3, 1); // April 1st
+            if (currentDate >= sessionStartDate) {
+                totalFeesDueSoFar += annualFee;
+            }
+            
+            totalFeesDueSoFar += monthsPassed * monthlyFee;
+            
+            const currentBalance = totalFeesDueSoFar - studentPaid;
+            const studentTotalDue = currentBalance + parseFloat(student.previous_year_balance);
+
+            if (studentTotalDue > 0) {
+                totalDue += studentTotalDue;
+            }
         }
 
         res.json({

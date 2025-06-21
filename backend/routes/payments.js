@@ -28,13 +28,13 @@ router.post('/', protect, async (req, res) => {
     }
 
     // Insert payment
-    await db.query(
+    const newPaymentResult = await db.query(
       `INSERT INTO payments (student_id, amount_paid, payment_method, academic_year)
-       VALUES ($1, $2, $3, $4)`,
+       VALUES ($1, $2, $3, $4) RETURNING *`,
       [student_id, amount_paid, payment_method, academic_year]
     );
 
-    res.status(201).json({ message: 'Payment made successfully!' });
+    res.status(201).json(newPaymentResult.rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import paymentService from '../../services/paymentService';
 import studentService from '../../services/studentService';
 import './PayFeeView.css';
+import Receipt from './Receipt';
 
 const PayFeeView = () => {
     const [searchCriteria, setSearchCriteria] = useState({
@@ -13,6 +14,7 @@ const PayFeeView = () => {
     const [paymentData, setPaymentData] = useState({ amount_paid: '', payment_method: '' });
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+    const [lastPayment, setLastPayment] = useState(null);
 
     const handleSearchChange = (e) => {
         setSearchCriteria({ ...searchCriteria, [e.target.name]: e.target.value });
@@ -23,6 +25,7 @@ const PayFeeView = () => {
         setError('');
         setMessage('');
         setFoundStudent(null);
+        setLastPayment(null);
         
         const { student_id, name, phone } = searchCriteria;
         const hasId = student_id.trim() !== '';
@@ -69,55 +72,81 @@ const PayFeeView = () => {
                 payment_method: paymentData.payment_method,
                 academic_year,
             };
-            await paymentService.makePayment(dataToSubmit);
-            setMessage('Payment made successfully!');
-            setFoundStudent(null);
-            setSearchCriteria({ student_id: '', name: '', phone: '' });
+            const response = await paymentService.makePayment(dataToSubmit);
+            setLastPayment(response.data);
+            
             setPaymentData({ amount_paid: '', payment_method: '' });
+            setMessage('Payment made successfully! Print the receipt below.');
+
         } catch (err) {
             setError(err.response?.data?.error || 'Payment failed.');
         }
     };
 
+    const handlePrintReceipt = () => {
+        window.print();
+    };
+
+    const handleCloseReceipt = () => {
+        setLastPayment(null);
+        setFoundStudent(null);
+        setSearchCriteria({ student_id: '', name: '', phone: '' });
+        setMessage('');
+        setError('');
+    };
+
     return (
         <div className="pay-fee-view">
-            <h2>Pay Fee</h2>
-            <p>Search by Student ID, or by both Name and Phone Number.</p>
-            <form onSubmit={handleFindStudent} className="find-student-form">
-                <div className="search-grid">
-                    <input name="student_id" placeholder="Student ID" value={searchCriteria.student_id} onChange={handleSearchChange} />
-                    <input name="name" placeholder="Student Name" value={searchCriteria.name} onChange={handleSearchChange} />
-                    <input name="phone" placeholder="Phone Number" value={searchCriteria.phone} onChange={handleSearchChange} />
-                </div>
-                <button type="submit">Find Student</button>
-            </form>
-
-            {error && <div className="error-message">{error}</div>}
-            
-            {foundStudent && (
-                <div className="student-details-card">
-                    <h3>Student Details</h3>
-                    <p><strong>Name:</strong> {foundStudent.name}</p>
-                    <p><strong>Class:</strong> {foundStudent.class_name}</p>
-                    <p><strong>Student ID:</strong> {foundStudent.student_id}</p>
-                    <p><strong>Father's Name:</strong> {foundStudent.father_name}</p>
-                    <p><strong>Phone:</strong> {foundStudent.phone}</p>
-                    <hr />
-                    <form onSubmit={handlePaymentSubmit} className="payment-form">
-                        <h3>Make Payment</h3>
-                        <input type="number" name="amount_paid" placeholder="Amount Paid" value={paymentData.amount_paid} onChange={handlePaymentChange} required />
-                        <select name="payment_method" value={paymentData.payment_method} onChange={handlePaymentChange} required >
-                            <option value="">Select Payment Method</option>
-                            <option value="Cash">Cash</option>
-                            <option value="Online">Online</option>
-                            <option value="Cheque">Cheque</option>
-                        </select>
-                        <button type="submit">Make Payment</button>
+            {!lastPayment && (
+                <>
+                    <h2>Pay Fee</h2>
+                    <p>Search by Student ID, or by both Name and Phone Number.</p>
+                    <form onSubmit={handleFindStudent} className="find-student-form">
+                        <div className="search-grid">
+                            <input name="student_id" placeholder="Student ID" value={searchCriteria.student_id} onChange={handleSearchChange} />
+                            <input name="name" placeholder="Student Name" value={searchCriteria.name} onChange={handleSearchChange} />
+                            <input name="phone" placeholder="Phone Number" value={searchCriteria.phone} onChange={handleSearchChange} />
+                        </div>
+                        <button type="submit">Find Student</button>
                     </form>
-                </div>
+
+                    {error && <div className="error-message">{error}</div>}
+                    
+                    {foundStudent && (
+                        <div className="student-details-card">
+                            <h3>Student Details</h3>
+                            <p><strong>Name:</strong> {foundStudent.name}</p>
+                            <p><strong>Class:</strong> {foundStudent.class_name}</p>
+                            <p><strong>Student ID:</strong> {foundStudent.student_id}</p>
+                            <p><strong>Father's Name:</strong> {foundStudent.father_name}</p>
+                            <p><strong>Phone:</strong> {foundStudent.phone}</p>
+                            <hr />
+                            <form onSubmit={handlePaymentSubmit} className="payment-form">
+                                <h3>Make Payment</h3>
+                                <input type="number" name="amount_paid" placeholder="Amount Paid" value={paymentData.amount_paid} onChange={handlePaymentChange} required />
+                                <select name="payment_method" value={paymentData.payment_method} onChange={handlePaymentChange} required >
+                                    <option value="">Select Payment Method</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Online">Online</option>
+                                    <option value="Cheque">Cheque</option>
+                                </select>
+                                <button type="submit">Make Payment</button>
+                            </form>
+                        </div>
+                    )}
+
+                    {message && <div className="success-message">{message}</div>}
+                </>
             )}
 
-            {message && <div className="success-message">{message}</div>}
+            {lastPayment && (
+                <Receipt 
+                    paymentDetails={lastPayment}
+                    studentDetails={foundStudent}
+                    onPrint={handlePrintReceipt}
+                    onClose={handleCloseReceipt}
+                />
+            )}
         </div>
     );
 };

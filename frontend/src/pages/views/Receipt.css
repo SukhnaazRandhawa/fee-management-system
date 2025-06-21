@@ -1,0 +1,149 @@
+.receipt-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.receipt-container {
+    background: white;
+    padding: 2rem 3rem;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+.receipt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px dashed #ccc;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.receipt-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #1a73e8;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.school-details {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.school-details h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.receipt-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.receipt-body h4 {
+    font-size: 1.1rem;
+    color: #1a73e8;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.receipt-body p {
+    margin: 0.4rem 0;
+    font-size: 0.95rem;
+}
+
+.payment-table {
+    width: 100%;
+    margin-top: 1rem;
+    border-collapse: collapse;
+}
+
+.payment-table th, .payment-table td {
+    border: 1px solid #eee;
+    padding: 0.8rem;
+    text-align: left;
+}
+
+.payment-table thead {
+    background-color: #f9f9f9;
+}
+
+.payment-table tfoot {
+    font-weight: bold;
+}
+
+.payment-table tfoot td {
+    border-top: 2px solid #ccc;
+}
+
+.receipt-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.receipt-footer button {
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.receipt-footer button:hover {
+    background-color: #145ab5;
+}
+
+/* Print-specific styles */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .receipt-overlay, .receipt-overlay * {
+        visibility: visible;
+    }
+    .receipt-overlay {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: auto;
+        background-color: white;
+    }
+    .receipt-container {
+        width: 100%;
+        max-width: 100%;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+        border: 1px solid #ccc;
+    }
+    .no-print {
+        display: none;
+    }
+} 
