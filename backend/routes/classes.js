@@ -23,7 +23,7 @@ router.get('/', protect, async (req, res) => {
 // @access  Private
 router.put('/:id', protect, async (req, res) => {
   try {
-    const { name, monthly_fee, annual_fee } = req.body;
+    let { name, monthly_fee, annual_fee } = req.body;
     const classId = req.params.id;
     const schoolId = req.school.schoolId;
 
@@ -36,6 +36,7 @@ router.put('/:id', protect, async (req, res) => {
       return res.status(403).json({ error: 'User not authorized to update this class' });
     }
 
+    name = name.trim().toLowerCase();
     // Update the class
     const updatedClass = await db.query(
       'UPDATE classes SET name = $1, monthly_fee = $2, annual_fee = $3 WHERE id = $4 RETURNING *',
@@ -83,10 +84,11 @@ router.get('/:id', protect, async (req, res) => {
 router.post('/', protect, async (req, res) => {
   try {
     const schoolId = req.school.schoolId;
-    const { name, monthly_fee, annual_fee } = req.body;
+    let { name, monthly_fee, annual_fee } = req.body;
     if (!name || !monthly_fee || !annual_fee) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
+    name = name.trim().toLowerCase();
     const newClass = await db.query(
       'INSERT INTO classes (school_id, name, monthly_fee, annual_fee) VALUES ($1, $2, $3, $4) RETURNING *',
       [schoolId, name, monthly_fee, annual_fee]
