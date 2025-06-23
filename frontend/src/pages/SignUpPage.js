@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 
 const SignUpPage = () => {
@@ -91,6 +91,11 @@ const SignUpPage = () => {
           </div>
         )}
       </form>
+      <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+        <p>
+          Already have an account? <Link to="/login">Log In</Link>
+        </p>
+      </div>
     </div>
   );
 };

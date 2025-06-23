@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const LoginPage = () => {
@@ -51,6 +51,11 @@ const LoginPage = () => {
         </div>
         <button type="submit">Log In</button>
       </form>
+      <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+        <p>
+          Don't have an account? <Link to="/signup">Sign Up</Link>
+        </p>
+      </div>
     </div>
   );
 };
