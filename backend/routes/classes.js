@@ -73,4 +73,25 @@ router.get('/:id', protect, async (req, res) => {
   }
 });
 
+// @route   POST /api/classes
+// @desc    Add a new class for the logged-in school
+// @access  Private
+router.post('/', protect, async (req, res) => {
+  try {
+    const schoolId = req.school.schoolId;
+    const { name, monthly_fee, annual_fee } = req.body;
+    if (!name || !monthly_fee || !annual_fee) {
+      return res.status(400).json({ error: 'All fields are required.' });
+    }
+    const newClass = await db.query(
+      'INSERT INTO classes (school_id, name, monthly_fee, annual_fee) VALUES ($1, $2, $3, $4) RETURNING *',
+      [schoolId, name, monthly_fee, annual_fee]
+    );
+    res.status(201).json(newClass.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router; 

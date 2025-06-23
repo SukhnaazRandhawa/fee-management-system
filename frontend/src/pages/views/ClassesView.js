@@ -9,6 +9,9 @@ const ClassesView = () => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addForm, setAddForm] = useState({ name: '', monthly_fee: '', annual_fee: '' });
+  const [addError, setAddError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,12 +58,48 @@ const ClassesView = () => {
     }
   };
 
+  // Add Class logic
+  const handleAddClassClick = () => {
+    setShowAddModal(true);
+    setAddForm({ name: '', monthly_fee: '', annual_fee: '' });
+    setAddError('');
+  };
+
+  const handleAddFormChange = (e) => {
+    setAddForm({ ...addForm, [e.target.name]: e.target.value });
+  };
+
+  const handleAddClassSubmit = async (e) => {
+    e.preventDefault();
+    setAddError('');
+    if (!addForm.name || !addForm.monthly_fee || !addForm.annual_fee) {
+      setAddError('All fields are required.');
+      return;
+    }
+    try {
+      await classService.addClass(addForm);
+      setShowAddModal(false);
+      fetchClasses();
+    } catch (err) {
+      setAddError('Failed to add class.');
+      console.error(err);
+    }
+  };
+
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+    setAddError('');
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
   return (
     <div>
-      <h2>Classes</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2>Classes</h2>
+        <button onClick={handleAddClassClick} style={{ marginRight: '1rem' }}>Add Class</button>
+      </div>
       <div className="class-grid">
         {classes.map((c) => (
           <div key={c.id} className="class-card" onClick={() => handleCardClick(c.id)}>
@@ -77,6 +116,33 @@ const ClassesView = () => {
         classData={selectedClass}
         onSave={handleSaveChanges}
       />
+      {/* Add Class Modal */}
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Add New Class</h3>
+            <form onSubmit={handleAddClassSubmit}>
+              <div>
+                <label>Class Name</label>
+                <input name="name" value={addForm.name} onChange={handleAddFormChange} required />
+              </div>
+              <div>
+                <label>Monthly Fee</label>
+                <input name="monthly_fee" type="number" value={addForm.monthly_fee} onChange={handleAddFormChange} required />
+              </div>
+              <div>
+                <label>Annual Fee</label>
+                <input name="annual_fee" type="number" value={addForm.annual_fee} onChange={handleAddFormChange} required />
+              </div>
+              {addError && <div style={{ color: 'red', marginTop: '0.5rem' }}>{addError}</div>}
+              <div style={{ marginTop: '1rem' }}>
+                <button type="submit">Add</button>
+                <button type="button" onClick={handleCloseAddModal} style={{ marginLeft: '1rem' }}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

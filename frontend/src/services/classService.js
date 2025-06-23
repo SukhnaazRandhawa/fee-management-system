@@ -24,10 +24,15 @@ const getClassById = (id) => {
     return axios.get(API_URL + id, { headers: getAuthHeader() });
 };
 
+const addClass = (classData) => {
+    return axios.post(API_URL, classData, { headers: getAuthHeader() });
+};
+
 const classService = {
     getClasses,
     updateClass,
     getClassById,
+    addClass,
 };
 
 export default classService; 
