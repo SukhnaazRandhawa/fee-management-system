@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EditClassModal from '../../components/EditClassModal';
 import classService from '../../services/classService';
+import './ClassesView.css'; // Ensure the CSS is imported
 
 const ClassesView = () => {
   const [classes, setClasses] = useState([]);
@@ -116,7 +117,7 @@ const ClassesView = () => {
         classData={selectedClass}
         onSave={handleSaveChanges}
       />
-      {/* Add Class Modal */}
+      {/* Add Class Modal - must be a direct child, not inside grid */}
       {showAddModal && (
         <div className="modal-overlay">
           <div className="modal-content">
