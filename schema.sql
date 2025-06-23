@@ -7,9 +7,13 @@ DROP TABLE IF EXISTS schools;
 -- Table for schools
 CREATE TABLE schools (
     id SERIAL PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    name VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    num_classes INTEGER NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    reset_password_token TEXT,
+    reset_password_expires TIMESTAMPTZ
 );
 
 -- Table for classes

@@ -6,6 +6,7 @@ const SignUpPage = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     numClasses: '',
     password: '',
     confirmPassword: '',
@@ -30,6 +31,7 @@ const SignUpPage = () => {
     try {
       const response = await authService.register(
         formData.name,
+        formData.email,
         formData.numClasses,
         formData.password
       );
@@ -54,6 +56,14 @@ const SignUpPage = () => {
               type="text"
               name="name"
               value={formData.name}
+              onChange={handleChange}
+              required
+            />
+            <label>Your School's Email Address</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
               required
             />

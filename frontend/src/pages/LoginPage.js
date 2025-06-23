@@ -53,6 +53,9 @@ const LoginPage = () => {
       </form>
       <div style={{ marginTop: '1rem', textAlign: 'center' }}>
         <p>
+          <Link to="/forgot-password">Forgot Password?</Link>
+        </p>
+        <p>
           Don't have an account? <Link to="/signup">Sign Up</Link>
         </p>
       </div>
