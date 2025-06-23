@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const EditClassModal = ({ isOpen, onClose, classData, onSave }) => {
+const EditClassModal = ({ isOpen, onClose, classData, onSave, error }) => {
     const [formData, setFormData] = useState({ name: '', monthly_fee: '', annual_fee: '' });
 
     useEffect(() => {
@@ -29,6 +29,7 @@ const EditClassModal = ({ isOpen, onClose, classData, onSave }) => {
         <div className="modal-backdrop">
             <div className="modal-content">
                 <h2>Edit Class</h2>
+                {error && <div style={{ color: 'red', marginBottom: '0.5rem' }}>{error}</div>}
                 <label>Class Name</label>
                 <input type="text" name="name" value={formData.name} onChange={handleChange} />
                 

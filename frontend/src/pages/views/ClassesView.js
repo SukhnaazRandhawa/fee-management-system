@@ -13,6 +13,7 @@ const ClassesView = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [addForm, setAddForm] = useState({ name: '', monthly_fee: '', annual_fee: '' });
   const [addError, setAddError] = useState('');
+  const [editError, setEditError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,11 +51,16 @@ const ClassesView = () => {
 
   const handleSaveChanges = async (id, updatedData) => {
     try {
+      setEditError('');
       await classService.updateClass(id, updatedData);
       handleCloseModal();
       fetchClasses(); // Re-fetch classes to show updated data
     } catch (err) {
-      setError('Failed to update class.');
+      if (err.response && err.response.status === 409) {
+        setEditError('Class already exists.');
+      } else {
+        setError('Failed to update class.');
+      }
       console.error(err);
     }
   };
@@ -82,7 +88,11 @@ const ClassesView = () => {
       setShowAddModal(false);
       fetchClasses();
     } catch (err) {
-      setAddError('Failed to add class.');
+      if (err.response && err.response.status === 409) {
+        setAddError('Class already exists.');
+      } else {
+        setAddError('Failed to add class.');
+      }
       console.error(err);
     }
   };
@@ -116,6 +126,7 @@ const ClassesView = () => {
         onClose={handleCloseModal}
         classData={selectedClass}
         onSave={handleSaveChanges}
+        error={editError}
       />
       {/* Add Class Modal - must be a direct child, not inside grid */}
       {showAddModal && (

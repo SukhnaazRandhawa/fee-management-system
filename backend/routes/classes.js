@@ -44,6 +44,10 @@ router.put('/:id', protect, async (req, res) => {
 
     res.json(updatedClass.rows[0]);
   } catch (err) {
+    if (err.code === '23505') {
+      // Unique violation
+      return res.status(409).json({ error: 'Class already exists.' });
+    }
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
@@ -89,6 +93,10 @@ router.post('/', protect, async (req, res) => {
     );
     res.status(201).json(newClass.rows[0]);
   } catch (err) {
+    if (err.code === '23505') {
+      // Unique violation
+      return res.status(409).json({ error: 'Class already exists.' });
+    }
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
