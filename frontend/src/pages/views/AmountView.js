@@ -43,8 +43,14 @@ const AmountView = () => {
                 </div>
                 {role === 'principal' && summary?.currentMonthCollection !== undefined && (
                     <div className="summary-card">
-                        <h3>Current Month's Collection</h3>
+                        <h3>{summary.currentMonthName ? `${summary.currentMonthName}'s Collection` : "Current Month's Collection"}</h3>
                         <p>${summary?.currentMonthCollection}</p>
+                    </div>
+                )}
+                {role === 'principal' && (
+                    <div className="summary-card">
+                        <h3>{summary.academicYearString ? `${summary.academicYearString} Collection` : 'Current Academic Year Collection'}</h3>
+                        <p>${summary?.currentAcademicYearCollection}</p>
                     </div>
                 )}
                 {role === 'principal' && (

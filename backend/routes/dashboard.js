@@ -42,6 +42,26 @@ router.get('/summary', protect, async (req, res) => {
         );
         const currentMonthCollection = parseFloat(monthCollectionResult.rows[0].sum) || 0;
 
+        // 3b. Current academic year's collection (April to March)
+        // Academic year starts in April and ends in March next year
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth(); // 0-11 (Jan-Dec)
+        const academicSessionStartYear = currentMonth < 3 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
+        const academicSessionEndYear = academicSessionStartYear + 1;
+        const academicYearStart = `${academicSessionStartYear}-04-01`;
+        const academicYearEnd = `${academicSessionEndYear}-03-31`;
+        const academicYearString = `${academicSessionStartYear}-${academicSessionEndYear}`;
+        const academicYearCollectionResult = await db.query(
+            `SELECT SUM(p.amount_paid) FROM payments p
+             JOIN students s ON p.student_id = s.id
+             JOIN classes c ON s.class_id = c.id
+             WHERE c.school_id = $1 AND p.payment_date >= $2 AND p.payment_date <= $3`,
+            [schoolId, academicYearStart, academicYearEnd]
+        );
+        const currentAcademicYearCollection = parseFloat(academicYearCollectionResult.rows[0].sum) || 0;
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const currentMonthName = monthNames[currentMonth];
+
         // 4. List of students who paid today
         const studentsPaidTodayResult = await db.query(
             `SELECT s.name, p.amount_paid FROM payments p
@@ -73,7 +93,6 @@ router.get('/summary', protect, async (req, res) => {
         }, {});
         
         let totalDue = 0;
-        const currentDate = new Date();
         
         const academicYearMonths = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
 
@@ -116,6 +135,9 @@ router.get('/summary', protect, async (req, res) => {
                 totalStudents,
                 totalCollectedToday: totalCollectedToday.toFixed(2),
                 currentMonthCollection: currentMonthCollection.toFixed(2),
+                currentMonthName,
+                currentAcademicYearCollection: currentAcademicYearCollection.toFixed(2),
+                academicYearString,
                 studentsPaidToday,
                 totalDue: totalDue.toFixed(2)
             });
