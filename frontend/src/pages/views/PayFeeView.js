@@ -119,7 +119,9 @@ const PayFeeView = () => {
                             <p><strong>Class:</strong> {foundStudent.class_name}</p>
                             <p><strong>Student ID:</strong> {foundStudent.student_id}</p>
                             <p><strong>Father's Name:</strong> {foundStudent.father_name}</p>
+                            <p><strong>Mother's Name:</strong> {foundStudent.mother_name}</p>
                             <p><strong>Phone:</strong> {foundStudent.phone}</p>
+                            <p><strong>Registered On:</strong> {foundStudent.registration_date ? new Date(foundStudent.registration_date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : ''}</p>
                             <hr />
                             <form onSubmit={handlePaymentSubmit} className="payment-form">
                                 <h3>Make Payment</h3>
