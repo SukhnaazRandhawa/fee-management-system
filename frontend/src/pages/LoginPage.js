@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    email: '',
     password: '',
   });
   const { login } = useContext(AuthContext);
@@ -17,7 +17,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(formData.name, formData.password);
+      await login(formData.email, formData.password);
       navigate('/dashboard'); // Redirect to dashboard on successful login
     } catch (error) {
       console.error('Login failed:', error);
@@ -30,11 +30,11 @@ const LoginPage = () => {
       <h1>Log In</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>School Name</label>
+          <label>Email</label>
           <input
-            type="text"
-            name="name"
-            value={formData.name}
+            type="email"
+            name="email"
+            value={formData.email}
             onChange={handleChange}
             required
           />

@@ -3,7 +3,7 @@ import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const DashboardLayout = () => {
-    const { user, logout } = useContext(AuthContext);
+    const { user, logout, role } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -17,7 +17,7 @@ const DashboardLayout = () => {
                 <h2>{user?.schoolName}</h2>
                 <nav>
                     <Link to="classes">Classes</Link>
-                    <Link to="amount">Amount</Link>
+                    {role === 'principal' && <Link to="amount">Amount</Link>}
                     <Link to="register">Register</Link>
                     <Link to="payfee">Pay Fee</Link>
                 </nav>

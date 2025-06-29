@@ -6,10 +6,13 @@ const SignUpPage = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    school_email: '',
+    principal_email: '',
     numClasses: '',
-    password: '',
-    confirmPassword: '',
+    principal_password: '',
+    staff_password: '',
+    confirmPrincipalPassword: '',
+    confirmStaffPassword: '',
   });
   const navigate = useNavigate();
 
@@ -23,17 +26,22 @@ const SignUpPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+    if (formData.principal_password !== formData.confirmPrincipalPassword) {
+      alert("Principal passwords do not match!");
       return;
     }
-    
+    if (formData.staff_password !== formData.confirmStaffPassword) {
+      alert("Staff passwords do not match!");
+      return;
+    }
     try {
       const response = await authService.register(
         formData.name,
-        formData.email,
+        formData.school_email,
+        formData.principal_email,
         formData.numClasses,
-        formData.password
+        formData.principal_password,
+        formData.staff_password
       );
       console.log(response.data);
       alert('School registered successfully! Please log in.');
@@ -59,11 +67,19 @@ const SignUpPage = () => {
               onChange={handleChange}
               required
             />
-            <label>Your School's Email Address</label>
+            <label>Your School's Email Address (for staff login)</label>
             <input
               type="email"
-              name="email"
-              value={formData.email}
+              name="school_email"
+              value={formData.school_email}
+              onChange={handleChange}
+              required
+            />
+            <label>Principal's Email Address (for principal login)</label>
+            <input
+              type="email"
+              name="principal_email"
+              value={formData.principal_email}
               onChange={handleChange}
               required
             />
@@ -81,19 +97,35 @@ const SignUpPage = () => {
 
         {step === 2 && (
           <div>
-            <label>Create your password</label>
+            <label>Create principal password</label>
             <input
               type="password"
-              name="password"
-              value={formData.password}
+              name="principal_password"
+              value={formData.principal_password}
               onChange={handleChange}
               required
             />
-            <label>Confirm your password</label>
+            <label>Confirm principal password</label>
             <input
               type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
+              name="confirmPrincipalPassword"
+              value={formData.confirmPrincipalPassword}
+              onChange={handleChange}
+              required
+            />
+            <label>Create staff password</label>
+            <input
+              type="password"
+              name="staff_password"
+              value={formData.staff_password}
+              onChange={handleChange}
+              required
+            />
+            <label>Confirm staff password</label>
+            <input
+              type="password"
+              name="confirmStaffPassword"
+              value={formData.confirmStaffPassword}
               onChange={handleChange}
               required
             />

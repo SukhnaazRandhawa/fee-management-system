@@ -10,23 +10,38 @@ const router = express.Router();
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, numClasses, password } = req.body;
-    if (!name || !email || !numClasses || !password) {
+    const { name, school_email, principal_email, numClasses, principal_password, staff_password } = req.body;
+    if (!name || !school_email || !principal_email || !numClasses || !principal_password || !staff_password) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
-    // Check if school already exists
-    const schoolExists = await db.query('SELECT * FROM schools WHERE name = $1 OR email = $2', [name, email]);
+    // Check if school or users already exist
+    const schoolExists = await db.query('SELECT * FROM schools WHERE name = $1 OR email = $2', [name, school_email]);
     if (schoolExists.rows.length > 0) {
       return res.status(409).json({ error: 'A school with that name or email already exists.' });
     }
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const userExists = await db.query('SELECT * FROM users WHERE email = $1 OR email = $2', [principal_email, school_email]);
+    if (userExists.rows.length > 0) {
+      return res.status(409).json({ error: 'A user with that email already exists.' });
+    }
+    // Hash passwords
+    const hashedPrincipalPassword = await bcrypt.hash(principal_password, 10);
+    const hashedStaffPassword = await bcrypt.hash(staff_password, 10);
     // Insert school
     const schoolResult = await db.query(
-      'INSERT INTO schools (name, email, password, num_classes) VALUES ($1, $2, $3, $4) RETURNING id',
-      [name, email, hashedPassword, parseInt(numClasses, 10)]
+      'INSERT INTO schools (name, email, num_classes) VALUES ($1, $2, $3) RETURNING id',
+      [name, school_email, parseInt(numClasses, 10)]
     );
     const schoolId = schoolResult.rows[0].id;
+    // Insert principal user
+    await db.query(
+      'INSERT INTO users (school_id, email, password, role) VALUES ($1, $2, $3, $4)',
+      [schoolId, principal_email, hashedPrincipalPassword, 'principal']
+    );
+    // Insert staff user
+    await db.query(
+      'INSERT INTO users (school_id, email, password, role) VALUES ($1, $2, $3, $4)',
+      [schoolId, school_email, hashedStaffPassword, 'staff']
+    );
     // Insert classes with default names and fees
     const defaultMonthlyFee = 2000;
     const defaultAnnualFee = 5000;
@@ -36,7 +51,7 @@ router.post('/register', async (req, res) => {
         [schoolId, `Class ${i}`, defaultMonthlyFee, defaultAnnualFee]
       );
     }
-    res.status(201).json({ message: 'School registered successfully!' });
+    res.status(201).json({ message: 'School and users registered successfully!' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error.' });
@@ -65,15 +80,49 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
-    // Generate JWT
+    // Generate JWT (include role)
     const token = jwt.sign(
-      { schoolId: school.id, name: school.name },
+      { schoolId: school.id, name: school.name, role: school.role },
       process.env.JWT_SECRET,
       { expiresIn: '1d' } // Token expires in 1 day
     );
 
-    res.json({ token, schoolName: school.name, message: 'Logged in successfully!' });
+    res.json({ token, schoolName: school.name, role: school.role, message: 'Logged in successfully!' });
 
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// POST /api/auth/user-login
+router.post('/user-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required.' });
+    }
+    // Find the user by email
+    const userResult = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+    const user = userResult.rows[0];
+    // Compare passwords
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+    // Get school name for display
+    const schoolResult = await db.query('SELECT name FROM schools WHERE id = $1', [user.school_id]);
+    const schoolName = schoolResult.rows.length > 0 ? schoolResult.rows[0].name : '';
+    // Generate JWT
+    const token = jwt.sign(
+      { userId: user.id, schoolId: user.school_id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+    res.json({ token, schoolName, role: user.role, email: user.email, message: 'Logged in successfully!' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error.' });

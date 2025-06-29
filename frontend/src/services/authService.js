@@ -2,12 +2,14 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5050/api/auth/';
 
-const register = (name, email, numClasses, password) => {
+const register = (name, school_email, principal_email, numClasses, principal_password, staff_password) => {
   return axios.post(API_URL + 'register', {
     name,
-    email,
+    school_email,
+    principal_email,
     numClasses,
-    password,
+    principal_password,
+    staff_password,
   });
 };
 
@@ -30,12 +32,17 @@ const resetPassword = (token, password) => {
   return axios.post(API_URL + `reset-password/${token}`, { password });
 };
 
+const userLogin = (email, password) => {
+  return axios.post('http://localhost:5050/api/auth/user-login', { email, password });
+};
+
 const authService = {
   register,
   login,
   logout,
   forgotPassword,
   resetPassword,
+  userLogin,
 };
 
 export default authService; 

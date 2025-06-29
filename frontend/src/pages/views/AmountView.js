@@ -35,10 +35,12 @@ const AmountView = () => {
                     <h3>Total Amount Collected Today</h3>
                     <p>${summary?.totalCollectedToday}</p>
                 </div>
-                <div className="summary-card">
-                    <h3>Current Month's Collection</h3>
-                    <p>${summary?.currentMonthCollection}</p>
-                </div>
+                {summary?.currentMonthCollection !== undefined && (
+                    <div className="summary-card">
+                        <h3>Current Month's Collection</h3>
+                        <p>${summary?.currentMonthCollection}</p>
+                    </div>
+                )}
                 <div className="summary-card">
                     <h3>Total Due</h3>
                     <p>${summary?.totalDue}</p>

@@ -1,15 +1,17 @@
 const express = require('express');
 const db = require('../db');
 const { protect } = require('../middleware/authMiddleware');
+const requirePrincipal = require('../middleware/requirePrincipal');
 
 const router = express.Router();
 
 // @route   GET /api/dashboard/summary
 // @desc    Get dashboard summary stats for the school
-// @access  Private
+// @access  Private, Principal or Staff
 router.get('/summary', protect, async (req, res) => {
     try {
-        const schoolId = req.school.schoolId;
+        const schoolId = req.user.schoolId;
+        const role = req.user.role;
 
         // 1. Total students
         const totalStudentsResult = await db.query(
@@ -108,13 +110,23 @@ router.get('/summary', protect, async (req, res) => {
             }
         }
 
-        res.json({
-            totalStudents,
-            totalCollectedToday: totalCollectedToday.toFixed(2),
-            currentMonthCollection: currentMonthCollection.toFixed(2),
-            studentsPaidToday,
-            totalDue: totalDue.toFixed(2)
-        });
+        // Principal gets all data, staff gets limited data
+        if (role === 'principal') {
+            res.json({
+                totalStudents,
+                totalCollectedToday: totalCollectedToday.toFixed(2),
+                currentMonthCollection: currentMonthCollection.toFixed(2),
+                studentsPaidToday,
+                totalDue: totalDue.toFixed(2)
+            });
+        } else {
+            res.json({
+                totalStudents,
+                totalCollectedToday: totalCollectedToday.toFixed(2),
+                studentsPaidToday,
+                totalDue: totalDue.toFixed(2)
+            });
+        }
 
     } catch (err) {
         console.error(err);

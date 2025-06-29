@@ -11,8 +11,15 @@ const protect = (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Attach school info to the request object
-      req.school = decoded;
+      // Attach user info to the request object
+      req.user = {
+        userId: decoded.userId,
+        schoolId: decoded.schoolId,
+        role: decoded.role,
+        email: decoded.email,
+      };
+      // For backward compatibility with old code
+      req.school = { schoolId: decoded.schoolId, role: decoded.role };
 
       next();
     } catch (error) {

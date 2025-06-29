@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
 import ProtectedRoute from './components/ProtectedRoute';
+import { AuthContext } from './context/AuthContext';
 import ClassDetailsPage from './pages/ClassDetailsPage';
 import DashboardLayout from './pages/DashboardLayout';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -15,6 +16,8 @@ import PayFeeView from './pages/views/PayFeeView';
 import RegisterView from './pages/views/RegisterView';
 
 function App() {
+  const { user } = React.useContext(AuthContext);
+  const isPrincipal = user?.role === 'principal';
   return (
     <Router>
       <div className="App">
@@ -31,7 +34,7 @@ function App() {
               <Route index element={<Navigate to="classes" replace />} />
               <Route path="classes" element={<ClassesView />} />
               <Route path="classes/:classId" element={<ClassDetailsPage />} />
-              <Route path="amount" element={<AmountView />} />
+              {isPrincipal && <Route path="amount" element={<AmountView />} />}
               <Route path="register" element={<RegisterView />} />
               <Route path="payfee" element={<PayFeeView />} />
             </Route>
