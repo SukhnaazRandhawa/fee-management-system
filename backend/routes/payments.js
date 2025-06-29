@@ -34,7 +34,14 @@ router.post('/', protect, async (req, res) => {
       [student_id, amount_paid, payment_method, academic_year]
     );
 
-    res.status(201).json(newPaymentResult.rows[0]);
+    // Fetch school details for receipt
+    const schoolResult = await db.query('SELECT name, location FROM schools WHERE id = $1', [schoolId]);
+    const schoolDetails = schoolResult.rows[0];
+
+    res.status(201).json({
+      ...newPaymentResult.rows[0],
+      schoolDetails
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });

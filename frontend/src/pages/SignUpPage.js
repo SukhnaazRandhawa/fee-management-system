@@ -8,6 +8,7 @@ const SignUpPage = () => {
     name: '',
     school_email: '',
     principal_email: '',
+    location: '',
     numClasses: '',
     principal_password: '',
     staff_password: '',
@@ -39,6 +40,7 @@ const SignUpPage = () => {
         formData.name,
         formData.school_email,
         formData.principal_email,
+        formData.location,
         formData.numClasses,
         formData.principal_password,
         formData.staff_password
@@ -80,6 +82,14 @@ const SignUpPage = () => {
               type="email"
               name="principal_email"
               value={formData.principal_email}
+              onChange={handleChange}
+              required
+            />
+            <label>School Location</label>
+            <input
+              type="text"
+              name="location"
+              value={formData.location}
               onChange={handleChange}
               required
             />

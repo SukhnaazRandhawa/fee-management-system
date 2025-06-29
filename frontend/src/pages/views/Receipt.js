@@ -16,9 +16,8 @@ const Receipt = ({ paymentDetails, studentDetails, schoolDetails, onPrint, onClo
                 </div>
                 <div className="receipt-body">
                     <div className="school-details">
-                        {/* Assuming schoolDetails might be available in the future */}
-                        <h3>{schoolDetails?.name || 'Great School'}</h3>
-                        <p>{schoolDetails?.address || '123 Education Lane, Knowledge City'}</p>
+                        <h3>{schoolDetails?.name || 'School Name'}</h3>
+                        <p>{schoolDetails?.location || ''}</p>
                     </div>
                     <hr />
                     <div className="receipt-info">

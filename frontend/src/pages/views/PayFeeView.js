@@ -145,6 +145,7 @@ const PayFeeView = () => {
                 <Receipt 
                     paymentDetails={lastPayment}
                     studentDetails={foundStudent}
+                    schoolDetails={lastPayment.schoolDetails}
                     onPrint={handlePrintReceipt}
                     onClose={handleCloseReceipt}
                 />
