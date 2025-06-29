@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import classService from '../services/classService';
@@ -12,6 +13,14 @@ const ClassDetailsPage = () => {
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showImportModal, setShowImportModal] = useState(false);
+    const [prevClasses, setPrevClasses] = useState([]);
+    const [prevClassId, setPrevClassId] = useState('');
+    const [prevStudents, setPrevStudents] = useState([]);
+    const [selectedStudents, setSelectedStudents] = useState([]);
+    const [importLoading, setImportLoading] = useState(false);
+    const [importError, setImportError] = useState('');
+    const [importSuccess, setImportSuccess] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -106,12 +115,109 @@ const ClassDetailsPage = () => {
         });
     }, [students, payments, classDetails]);
 
+    // Fetch previous year classes for import
+    const fetchPrevClasses = async () => {
+        setPrevClasses([]);
+        setPrevClassId('');
+        setPrevStudents([]);
+        setSelectedStudents([]);
+        setImportError('');
+        setImportSuccess('');
+        try {
+            const res = await axios.get(`/api/classes`); // get all classes
+            setPrevClasses(res.data);
+        } catch {
+            setPrevClasses([]);
+        }
+    };
+
+    // Fetch students from selected previous class
+    const fetchPrevStudents = async (classId) => {
+        setPrevStudents([]);
+        setSelectedStudents([]);
+        setImportError('');
+        setImportSuccess('');
+        if (!classId) return;
+        try {
+            // Get previous year
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            const prevSessionStartYear = currentMonth < 3 ? currentDate.getFullYear() - 2 : currentDate.getFullYear() - 1;
+            const prevSessionEndYear = prevSessionStartYear + 1;
+            const prevAcademicYear = `${prevSessionStartYear}-${prevSessionEndYear}`;
+            const res = await axios.get(`/api/classes/${classId}/fee-history?year=${prevAcademicYear}`);
+            setPrevStudents(res.data.students);
+        } catch {
+            setPrevStudents([]);
+        }
+    };
+
+    const handleImport = async () => {
+        setImportLoading(true);
+        setImportError('');
+        setImportSuccess('');
+        try {
+            await axios.post(`/api/classes/${classId}/import-students`, {
+                sourceClassId: prevClassId,
+                studentIds: selectedStudents
+            });
+            setImportSuccess('Students imported successfully!');
+            setShowImportModal(false);
+            window.location.reload(); // reload to show new students
+        } catch {
+            setImportError('Failed to import students.');
+        }
+        setImportLoading(false);
+    };
+
     if (loading) return <div>Loading class details...</div>;
     if (error) return <div>{error}</div>;
 
     return (
         <div className="class-details-view">
             <h2>{classDetails?.name} - Fee Status</h2>
+            {students.length === 0 && (
+                <button onClick={() => { setShowImportModal(true); fetchPrevClasses(); }} style={{ marginBottom: '1rem', background: '#2980b9', color: 'white' }}>
+                    Import Students
+                </button>
+            )}
+            {showImportModal && (
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div style={{ background: 'white', padding: '2rem', borderRadius: 8, minWidth: 320 }}>
+                        <h3>Import Students from Previous Year</h3>
+                        <div style={{ marginBottom: '1rem' }}>
+                            <label>Select Previous Class: </label>
+                            <select value={prevClassId} onChange={e => { setPrevClassId(e.target.value); fetchPrevStudents(e.target.value); }}>
+                                <option value="">Select</option>
+                                {prevClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            </select>
+                        </div>
+                        <div style={{ maxHeight: 200, overflowY: 'auto', marginBottom: '1rem' }}>
+                            {prevStudents.length === 0 ? <div>No students found.</div> : (
+                                <ul style={{ listStyle: 'none', padding: 0 }}>
+                                    {prevStudents.map(s => (
+                                        <li key={s.id}>
+                                            <label>
+                                                <input type="checkbox" value={s.id} checked={selectedStudents.includes(s.id)} onChange={e => {
+                                                    if (e.target.checked) setSelectedStudents([...selectedStudents, s.id]);
+                                                    else setSelectedStudents(selectedStudents.filter(id => id !== s.id));
+                                                }} />
+                                                {s.name} ({s.student_id})
+                                            </label>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                        {importError && <div style={{ color: 'red' }}>{importError}</div>}
+                        {importSuccess && <div style={{ color: 'green' }}>{importSuccess}</div>}
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                            <button onClick={handleImport} disabled={importLoading || selectedStudents.length === 0} style={{ background: '#27ae60', color: 'white' }}>Done</button>
+                            <button onClick={() => setShowImportModal(false)} disabled={importLoading}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div className="table-container">
                 <table>
                     <thead>

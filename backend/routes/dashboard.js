@@ -187,4 +187,73 @@ router.get('/summary', protect, async (req, res) => {
     }
 });
 
+// @route   POST /api/dashboard/rollover
+// @desc    Archive current year data and start a new session (principal only)
+// @access  Private, Principal only
+router.post('/rollover', protect, requirePrincipal, async (req, res) => {
+    try {
+        const schoolId = req.user.schoolId;
+        // 1. Determine current and next academic year
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const academicSessionStartYear = currentMonth < 3 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
+        const academicSessionEndYear = academicSessionStartYear + 1;
+        const academicYear = `${academicSessionStartYear}-${academicSessionEndYear}`;
+
+        // 2. Get all active students for this school
+        const studentsResult = await db.query(
+            `SELECT s.*, c.name as class_name FROM students s
+             JOIN classes c ON s.class_id = c.id
+             WHERE c.school_id = $1 AND s.status = 'active'`,
+            [schoolId]
+        );
+        const students = studentsResult.rows;
+
+        // 3. For each student, archive their data and payments
+        for (const student of students) {
+            // Get all payments for this student for the current academic year
+            const paymentsResult = await db.query(
+                `SELECT * FROM payments WHERE student_id = $1 AND academic_year = $2`,
+                [student.id, academicYear]
+            );
+            // Calculate final balance (current balance at end of year)
+            const totalPaid = paymentsResult.rows.reduce((sum, p) => sum + parseFloat(p.amount_paid), 0);
+            // Get class fee info
+            const classResult = await db.query('SELECT * FROM classes WHERE id = $1', [student.class_id]);
+            const classInfo = classResult.rows[0];
+            let annualFee = parseFloat(classInfo.annual_fee);
+            let monthlyFee = parseFloat(classInfo.monthly_fee);
+            // Calculate total fees due for the year (April-March)
+            let totalFeesDue = annualFee + (monthlyFee * 12);
+            let finalBalance = totalFeesDue - totalPaid + parseFloat(student.previous_year_balance);
+            // Insert into archived_students
+            const archivedStudentResult = await db.query(
+                `INSERT INTO archived_students (school_id, class_id, academic_year, student_id, name, father_name, mother_name, email, phone, previous_year_balance, final_balance, status, registration_date, class_name)
+                 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
+                [schoolId, student.class_id, academicYear, student.student_id, student.name, student.father_name, student.mother_name, student.email, student.phone, student.previous_year_balance, finalBalance, student.status, student.registration_date, student.class_name]
+            );
+            const archivedStudentId = archivedStudentResult.rows[0].id;
+            // Insert all payments into archived_payments
+            for (const payment of paymentsResult.rows) {
+                await db.query(
+                    `INSERT INTO archived_payments (archived_student_id, amount_paid, payment_date, payment_method)
+                     VALUES ($1, $2, $3, $4)`,
+                    [archivedStudentId, payment.amount_paid, payment.payment_date, payment.payment_method]
+                );
+            }
+        }
+
+        // 4. Mark all students as inactive and clear their class assignments
+        await db.query(`UPDATE students SET status = 'inactive'`);
+
+        // 5. Optionally, clear previous_year_balance for all students (will be set on import)
+        await db.query(`UPDATE students SET previous_year_balance = 0`);
+
+        res.json({ message: 'Session rollover complete. All data archived and classes cleared for new session.' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error during session rollover.' });
+    }
+});
+
 module.exports = router; 

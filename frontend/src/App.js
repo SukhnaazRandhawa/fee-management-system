@@ -14,6 +14,7 @@ import AmountView from './pages/views/AmountView';
 import ClassesView from './pages/views/ClassesView';
 import PayFeeView from './pages/views/PayFeeView';
 import RegisterView from './pages/views/RegisterView';
+import ViewFeeHistory from './pages/views/ViewFeeHistory';
 
 function App() {
   const { user } = React.useContext(AuthContext);
@@ -37,6 +38,7 @@ function App() {
               <Route path="amount" element={<AmountView />} />
               <Route path="register" element={<RegisterView />} />
               <Route path="payfee" element={<PayFeeView />} />
+              <Route path="viewfeehistory" element={<ViewFeeHistory />} />
             </Route>
           </Route>
 
