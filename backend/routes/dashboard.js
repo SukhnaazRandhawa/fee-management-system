@@ -32,6 +32,27 @@ router.get('/summary', protect, async (req, res) => {
         );
         const totalCollectedToday = parseFloat(todayCollectionResult.rows[0].sum) || 0;
 
+        // 2b. Today's collection by payment method
+        const todayCollectionByMethodResult = await db.query(
+            `SELECT p.payment_method, SUM(p.amount_paid) as total
+             FROM payments p
+             JOIN students s ON p.student_id = s.id
+             JOIN classes c ON s.class_id = c.id
+             WHERE c.school_id = $1 AND p.payment_date::date = CURRENT_DATE
+             GROUP BY p.payment_method`,
+            [schoolId]
+        );
+        const todayCollectionByMethod = {
+            Cash: 0,
+            Online: 0,
+            Cheque: 0
+        };
+        todayCollectionByMethodResult.rows.forEach(row => {
+            if (row.payment_method && todayCollectionByMethod.hasOwnProperty(row.payment_method)) {
+                todayCollectionByMethod[row.payment_method] = parseFloat(row.total) || 0;
+            }
+        });
+
         // 3. Current month's collection
         const monthCollectionResult = await db.query(
             `SELECT SUM(p.amount_paid) FROM payments p
@@ -134,6 +155,11 @@ router.get('/summary', protect, async (req, res) => {
             res.json({
                 totalStudents,
                 totalCollectedToday: totalCollectedToday.toFixed(2),
+                todayCollectionByMethod: {
+                    Cash: todayCollectionByMethod.Cash.toFixed(2),
+                    Online: todayCollectionByMethod.Online.toFixed(2),
+                    Cheque: todayCollectionByMethod.Cheque.toFixed(2)
+                },
                 currentMonthCollection: currentMonthCollection.toFixed(2),
                 currentMonthName,
                 currentAcademicYearCollection: currentAcademicYearCollection.toFixed(2),
@@ -145,6 +171,11 @@ router.get('/summary', protect, async (req, res) => {
             res.json({
                 totalStudents,
                 totalCollectedToday: totalCollectedToday.toFixed(2),
+                todayCollectionByMethod: {
+                    Cash: todayCollectionByMethod.Cash.toFixed(2),
+                    Online: todayCollectionByMethod.Online.toFixed(2),
+                    Cheque: todayCollectionByMethod.Cheque.toFixed(2)
+                },
                 studentsPaidToday,
                 totalDue: totalDue.toFixed(2)
             });
