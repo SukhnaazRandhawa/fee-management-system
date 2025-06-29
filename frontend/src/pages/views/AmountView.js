@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../../context/AuthContext';
 import dashboardService from '../../services/dashboardService';
 import './AmountView.css';
 
@@ -6,6 +7,7 @@ const AmountView = () => {
     const [summary, setSummary] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { role } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchSummary = async () => {
@@ -32,23 +34,25 @@ const AmountView = () => {
             <h2>Dashboard</h2>
             <div className="summary-cards">
                 <div className="summary-card">
+                    <h3>Total Students</h3>
+                    <p>{summary?.totalStudents}</p>
+                </div>
+                <div className="summary-card">
                     <h3>Total Amount Collected Today</h3>
                     <p>${summary?.totalCollectedToday}</p>
                 </div>
-                {summary?.currentMonthCollection !== undefined && (
+                {role === 'principal' && summary?.currentMonthCollection !== undefined && (
                     <div className="summary-card">
                         <h3>Current Month's Collection</h3>
                         <p>${summary?.currentMonthCollection}</p>
                     </div>
                 )}
-                <div className="summary-card">
-                    <h3>Total Due</h3>
-                    <p>${summary?.totalDue}</p>
-                </div>
-                <div className="summary-card">
-                    <h3>Total Students</h3>
-                    <p>{summary?.totalStudents}</p>
-                </div>
+                {role === 'principal' && (
+                    <div className="summary-card">
+                        <h3>Total Due</h3>
+                        <p>${summary?.totalDue}</p>
+                    </div>
+                )}
             </div>
             <div className="students-paid-today">
                 <h3>List of Students Paid Today</h3>

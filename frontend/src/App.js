@@ -34,7 +34,7 @@ function App() {
               <Route index element={<Navigate to="classes" replace />} />
               <Route path="classes" element={<ClassesView />} />
               <Route path="classes/:classId" element={<ClassDetailsPage />} />
-              {isPrincipal && <Route path="amount" element={<AmountView />} />}
+              <Route path="amount" element={<AmountView />} />
               <Route path="register" element={<RegisterView />} />
               <Route path="payfee" element={<PayFeeView />} />
             </Route>

@@ -17,7 +17,7 @@ const DashboardLayout = () => {
                 <h2>{user?.schoolName}</h2>
                 <nav>
                     <Link to="classes">Classes</Link>
-                    {role === 'principal' && <Link to="amount">Amount</Link>}
+                    <Link to="amount">Amount</Link>
                     <Link to="register">Register</Link>
                     <Link to="payfee">Pay Fee</Link>
                 </nav>
