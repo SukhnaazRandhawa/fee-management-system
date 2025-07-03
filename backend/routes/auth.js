@@ -134,15 +134,16 @@ router.post('/user-login', async (req, res) => {
 // @access  Public
 router.post('/forgot-password', async (req, res) => {
     try {
-        const { name, email } = req.body;
-        const schoolResult = await db.query('SELECT * FROM schools WHERE name = $1 AND email = $2', [name, email]);
+        const { email } = req.body;
+        // Find the user by email (principal or staff)
+        const userResult = await db.query('SELECT * FROM users WHERE email = $1', [email]);
 
-        if (schoolResult.rows.length === 0) {
+        if (userResult.rows.length === 0) {
             // We send a generic success message to prevent user enumeration
-            return res.status(200).json({ message: 'If an account with that email and school name exists, you will receive a password reset link.' });
+            return res.status(200).json({ message: 'If an account with that email exists, you will receive a password reset link.' });
         }
 
-        const school = schoolResult.rows[0];
+        const user = userResult.rows[0];
 
         // Create a reset token
         const resetToken = crypto.randomBytes(32).toString('hex');
@@ -152,8 +153,8 @@ router.post('/forgot-password', async (req, res) => {
         const resetExpires = new Date(Date.now() + 3600000); // 1 hour
 
         await db.query(
-            'UPDATE schools SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3',
-            [hashedToken, resetExpires, school.id]
+            'UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3',
+            [hashedToken, resetExpires, user.id]
         );
 
         // Create reset URL
@@ -168,7 +169,7 @@ router.post('/forgot-password', async (req, res) => {
 
         try {
             await sendEmail({
-                email: school.email,
+                email: user.email,
                 subject: 'Your Password Reset Token (Valid for 1 Hour)',
                 message
             });
@@ -177,8 +178,8 @@ router.post('/forgot-password', async (req, res) => {
             console.error('Email sending error:', emailError);
             // Clear the token if the email fails to prevent a user from being locked out
             await db.query(
-                'UPDATE schools SET reset_password_token = NULL, reset_password_expires = NULL WHERE id = $1',
-                [school.id]
+                'UPDATE users SET reset_password_token = NULL, reset_password_expires = NULL WHERE id = $1',
+                [user.id]
             );
             return res.status(500).json({ error: 'There was an error sending the email. Please try again later.' });
         }
@@ -199,16 +200,16 @@ router.post('/reset-password/:token', async (req, res) => {
 
         const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-        const schoolResult = await db.query(
-            'SELECT * FROM schools WHERE reset_password_token = $1 AND reset_password_expires > $2',
+        const userResult = await db.query(
+            'SELECT * FROM users WHERE reset_password_token = $1 AND reset_password_expires > $2',
             [hashedToken, new Date()]
         );
 
-        if (schoolResult.rows.length === 0) {
+        if (userResult.rows.length === 0) {
             return res.status(400).json({ error: 'Password reset token is invalid or has expired.' });
         }
 
-        const school = schoolResult.rows[0];
+        const user = userResult.rows[0];
 
         // Hash the new password
         const salt = await bcrypt.genSalt(10);
@@ -216,8 +217,8 @@ router.post('/reset-password/:token', async (req, res) => {
 
         // Update password and clear reset token fields
         await db.query(
-            'UPDATE schools SET password = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2',
-            [hashedPassword, school.id]
+            'UPDATE users SET password = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2',
+            [hashedPassword, user.id]
         );
 
         res.status(200).json({ message: 'Password has been successfully reset.' });
