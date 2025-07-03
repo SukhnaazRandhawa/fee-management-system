@@ -81,7 +81,8 @@
   text-decoration: underline;
   font-weight: 500;
   margin-top: 1rem;
-  display: inline-block;
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
 .login-error {
