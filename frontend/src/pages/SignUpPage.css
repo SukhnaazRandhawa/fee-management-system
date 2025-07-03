@@ -107,4 +107,44 @@
   .signup-title {
     font-size: 1.3rem;
   }
+}
+
+.signup-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.signup-stepper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.7rem;
+}
+.step-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #D1D5DB;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(94,44,165,0.08);
+}
+.step-dot.active {
+  background: #5E2CA5;
+  box-shadow: 0 2px 8px rgba(94,44,165,0.18);
+}
+
+.signup-error {
+  color: #EF4444;
+  font-size: 0.98rem;
+  margin-bottom: 0.2rem;
+  text-align: left;
+  margin-top: -0.7rem;
+  margin-left: 2px;
+}
+.input-error {
+  border: 1.5px solid #EF4444 !important;
+  background: #fff0f3;
 } 
