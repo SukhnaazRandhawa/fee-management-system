@@ -147,4 +147,53 @@
 .input-error {
   border: 1.5px solid #EF4444 !important;
   background: #fff0f3;
+}
+
+/* Password Strength Meter and Checklist */
+.pw-strength-container {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.2rem;
+  margin-top: -0.2rem;
+}
+.pw-strength-bar-bg {
+  width: 90px;
+  height: 8px;
+  background: #D1D5DB;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-right: 0.5rem;
+}
+.pw-strength-bar {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s, background 0.3s;
+}
+.pw-strength-label {
+  font-size: 0.98rem;
+  font-weight: 600;
+  min-width: 48px;
+  text-align: left;
+}
+.pw-checklist {
+  list-style: none;
+  padding: 0 0 0 0.2rem;
+  margin: 0.2rem 0 0.5rem 0;
+  font-size: 0.98rem;
+  text-align: left;
+}
+.pw-checklist li {
+  margin-bottom: 0.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.pw-checklist .met {
+  color: #22C55E;
+  font-weight: 500;
+}
+.pw-checklist .unmet {
+  color: #EF4444;
+  font-weight: 400;
 } 

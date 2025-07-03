@@ -14,6 +14,71 @@ const BilloraLogo = () => (
   </div>
 );
 
+const passwordRequirements = [
+  {
+    label: 'At least 8 characters',
+    test: (pw) => pw.length >= 8,
+    key: 'length',
+  },
+  {
+    label: 'At least one uppercase letter',
+    test: (pw) => /[A-Z]/.test(pw),
+    key: 'uppercase',
+  },
+  {
+    label: 'At least one lowercase letter',
+    test: (pw) => /[a-z]/.test(pw),
+    key: 'lowercase',
+  },
+  {
+    label: 'At least one number',
+    test: (pw) => /[0-9]/.test(pw),
+    key: 'number',
+  },
+  {
+    label: 'At least one special character (!@#$%^&)',
+    test: (pw) => /[!@#$%^&]/.test(pw),
+    key: 'special',
+  },
+];
+
+function getPasswordStrength(pw) {
+  let score = 0;
+  passwordRequirements.forEach(req => {
+    if (req.test(pw)) score++;
+  });
+  if (!pw) return { label: '', color: '', score: 0 };
+  if (score <= 2) return { label: 'Weak', color: '#EF4444', score };
+  if (score === 3 || score === 4) return { label: 'Medium', color: '#F59E42', score };
+  if (score === 5) return { label: 'Strong', color: '#22C55E', score };
+  return { label: '', color: '', score };
+}
+
+const PasswordStrength = ({ password }) => {
+  const { label, color, score } = getPasswordStrength(password);
+  return (
+    <div className="pw-strength-container">
+      <div className="pw-strength-bar-bg">
+        <div
+          className="pw-strength-bar"
+          style={{ width: `${(score/5)*100}%`, background: color }}
+        />
+      </div>
+      <span className="pw-strength-label" style={{ color }}>{label}</span>
+    </div>
+  );
+};
+
+const PasswordChecklist = ({ password }) => (
+  <ul className="pw-checklist">
+    {passwordRequirements.map(req => (
+      <li key={req.key} className={req.test(password) ? 'met' : 'unmet'}>
+        {req.test(password) ? '✔' : '✖'} {req.label}
+      </li>
+    ))}
+  </ul>
+);
+
 const SignUpPage = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -46,6 +111,28 @@ const SignUpPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const validatePasswords = () => {
+    const newErrors = {};
+    // Principal password
+    const principalStrength = getPasswordStrength(formData.principal_password);
+    if (principalStrength.score < 5) {
+      newErrors.principal_password = 'Principal password is not strong enough.';
+    }
+    if (formData.principal_password !== formData.confirmPrincipalPassword) {
+      newErrors.confirmPrincipalPassword = 'Principal passwords do not match!';
+    }
+    // Staff password
+    const staffStrength = getPasswordStrength(formData.staff_password);
+    if (staffStrength.score < 5) {
+      newErrors.staff_password = 'Staff password is not strong enough.';
+    }
+    if (formData.staff_password !== formData.confirmStaffPassword) {
+      newErrors.confirmStaffPassword = 'Staff passwords do not match!';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleNextStep = () => {
     if (step === 1 && !validateStep1()) return;
     setStep(step + 1);
@@ -53,15 +140,7 @@ const SignUpPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newErrors = {};
-    if (formData.principal_password !== formData.confirmPrincipalPassword) {
-      newErrors.confirmPrincipalPassword = 'Principal passwords do not match!';
-    }
-    if (formData.staff_password !== formData.confirmStaffPassword) {
-      newErrors.confirmStaffPassword = 'Staff passwords do not match!';
-    }
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
+    if (!validatePasswords()) return;
     try {
       await authService.register(
         formData.name,
@@ -89,7 +168,7 @@ const SignUpPage = () => {
         </div>
         <h1 className="signup-title">Create account for your School</h1>
         <p className="signup-step">Step {step} of 2</p>
-        <form onSubmit={handleSubmit} className="signup-form">
+        <form onSubmit={handleSubmit} className="signup-form" autoComplete="on">
           {step === 1 && (
             <>
               <label className="signup-label">What's the name of your school?</label>
@@ -155,8 +234,12 @@ const SignUpPage = () => {
                 value={formData.principal_password}
                 onChange={handleChange}
                 required
-                className="signup-input"
+                className={`signup-input${errors.principal_password ? ' input-error' : ''}`}
+                autoComplete="new-password"
               />
+              <PasswordStrength password={formData.principal_password} />
+              <PasswordChecklist password={formData.principal_password} />
+              {errors.principal_password && <div className="signup-error">{errors.principal_password}</div>}
               <label className="signup-label">Confirm principal password</label>
               <input
                 type="password"
@@ -165,6 +248,7 @@ const SignUpPage = () => {
                 onChange={handleChange}
                 required
                 className={`signup-input${errors.confirmPrincipalPassword ? ' input-error' : ''}`}
+                autoComplete="new-password"
               />
               {errors.confirmPrincipalPassword && <div className="signup-error">{errors.confirmPrincipalPassword}</div>}
               <label className="signup-label">Create staff password</label>
@@ -174,8 +258,12 @@ const SignUpPage = () => {
                 value={formData.staff_password}
                 onChange={handleChange}
                 required
-                className="signup-input"
+                className={`signup-input${errors.staff_password ? ' input-error' : ''}`}
+                autoComplete="new-password"
               />
+              <PasswordStrength password={formData.staff_password} />
+              <PasswordChecklist password={formData.staff_password} />
+              {errors.staff_password && <div className="signup-error">{errors.staff_password}</div>}
               <label className="signup-label">Confirm staff password</label>
               <input
                 type="password"
@@ -184,6 +272,7 @@ const SignUpPage = () => {
                 onChange={handleChange}
                 required
                 className={`signup-input${errors.confirmStaffPassword ? ' input-error' : ''}`}
+                autoComplete="new-password"
               />
               {errors.confirmStaffPassword && <div className="signup-error">{errors.confirmStaffPassword}</div>}
               <button type="submit" className="signup-btn-primary">Continue</button>
