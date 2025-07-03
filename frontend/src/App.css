@@ -95,3 +95,13 @@ header nav a {
   flex-direction: column;
   gap: 1rem;
 }
+
+@media (max-width: 600px) {
+  .homepage-card {
+    padding: 2rem 1rem;
+    min-width: 90vw;
+  }
+  .homepage-header {
+    font-size: 1.3rem;
+  }
+}

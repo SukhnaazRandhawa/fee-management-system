@@ -3,10 +3,10 @@ import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-d
 import './App.css';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthContext } from './context/AuthContext';
+import BilloraLandingPage from './pages/BilloraLandingPage';
 import ClassDetailsPage from './pages/ClassDetailsPage';
 import DashboardLayout from './pages/DashboardLayout';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
-import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import SignUpPage from './pages/SignUpPage';
@@ -23,7 +23,7 @@ function App() {
     <Router>
       <div className="App">
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<BilloraLandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
