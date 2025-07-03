@@ -1,0 +1,110 @@
+/* Billora SignUp Page Styles */
+.signup-bg {
+  min-height: 100vh;
+  background: #F9F1FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(94,44,165,0.10);
+  padding: 2.5rem 2rem 2rem 2rem;
+  min-width: 340px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.signup-title {
+  color: #2D2D2D;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.signup-step {
+  color: #5E2CA5;
+  font-size: 1.1rem;
+  margin-bottom: 1.2rem;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.signup-label {
+  text-align: left;
+  color: #5E2CA5;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.signup-input {
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+.signup-input:focus {
+  border: 1.5px solid #5E2CA5;
+}
+
+.signup-btn-primary {
+  background: #F72585;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.9rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 0.5rem;
+}
+.signup-btn-primary:hover {
+  background: #c81e6e;
+}
+
+.signup-btn-secondary {
+  background: #D1D5DB;
+  color: #2D2D2D;
+  border: none;
+  border-radius: 8px;
+  padding: 0.9rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.signup-btn-secondary:hover {
+  background: #b0b4bb;
+}
+
+.signup-link {
+  color: #5E2CA5;
+  text-decoration: underline;
+  font-weight: 500;
+  margin-top: 1rem;
+  display: inline-block;
+}
+
+@media (max-width: 600px) {
+  .signup-card {
+    min-width: 90vw;
+    max-width: 98vw;
+    padding: 1.2rem 0.5rem;
+  }
+  .signup-title {
+    font-size: 1.3rem;
+  }
+} 
