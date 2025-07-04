@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import authService from '../services/authService';
 import './ForgotPasswordPage.css';
@@ -34,6 +34,13 @@ const ForgotPasswordPage = () => {
       setError(err.response?.data?.error || 'An error occurred.');
     }
   };
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(''), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
   return (
     <div className="forgot-bg">
