@@ -114,6 +114,7 @@ const ClassesView = () => {
       <div className="class-grid">
         {classes.map((c) => (
           <div key={c.id} className="class-card" onClick={() => handleCardClick(c.id)}>
+            <div className="class-avatar">{c.name.charAt(0).toUpperCase()}</div>
             <h3>{c.name}</h3>
             <p>Monthly Fee: ${c.monthly_fee}</p>
             <p>Annual Fee: ${c.annual_fee}</p>
