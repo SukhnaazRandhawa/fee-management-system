@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_URL = 'http://localhost:5050/api/classes/';
+//const API_URL = '/api/classes/';
 
 // We need a function to get the token from localStorage
 const getAuthHeader = () => {
@@ -28,11 +29,21 @@ const addClass = (classData) => {
     return axios.post(API_URL, classData, { headers: getAuthHeader() });
 };
 
+const getFeeHistoryYears = (classId) => {
+    return axios.get(API_URL + classId + '/fee-history-years', { headers: getAuthHeader() });
+};
+
+const getFeeHistory = (classId, year) => {
+    return axios.get(API_URL + `${classId}/fee-history?year=${year}`, { headers: getAuthHeader() });
+};
+
 const classService = {
     getClasses,
     updateClass,
     getClassById,
     addClass,
+    getFeeHistoryYears,
+    getFeeHistory,
 };
 
 export default classService; 

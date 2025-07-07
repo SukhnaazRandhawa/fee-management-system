@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import classService from '../../services/classService';
 
@@ -17,17 +16,18 @@ const ViewFeeHistory = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch available years for the selected class
     if (!selectedClass) return;
     setYears([]);
     setSelectedYear('');
     setStudents([]);
     setError('');
     setLoading(true);
-    axios.get(`/api/classes/${selectedClass}/fee-history-years`).then(res => {
-      setYears(res.data.years);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    classService.getFeeHistoryYears(selectedClass)
+      .then(res => {
+        setYears(res.data.years);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, [selectedClass]);
 
   const handleView = async () => {
@@ -36,7 +36,7 @@ const ViewFeeHistory = () => {
     setError('');
     setStudents([]);
     try {
-      const res = await axios.get(`/api/classes/${selectedClass}/fee-history?year=${selectedYear}`);
+      const res = await classService.getFeeHistory(selectedClass, selectedYear);
       setStudents(res.data.students);
     } catch (err) {
       setError('Failed to fetch fee history.');
