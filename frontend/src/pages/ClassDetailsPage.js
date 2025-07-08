@@ -124,7 +124,7 @@ const ClassDetailsPage = () => {
         setImportError('');
         setImportSuccess('');
         try {
-            const res = await axios.get(`/api/classes`); // get all classes
+            const res = await classService.getClasses(); // get all classes
             setPrevClasses(res.data);
         } catch {
             setPrevClasses([]);
