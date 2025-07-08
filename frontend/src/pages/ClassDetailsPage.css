@@ -48,4 +48,14 @@ td.unpaid {
 td.partial {
     background-color: #fff3cd;
     color: #856404;
+}
+
+.balance-green {
+    color: green;
+    font-weight: bold;
+}
+
+.balance-red {
+    color: red;
+    font-weight: bold;
 } 

@@ -243,7 +243,9 @@ const ClassDetailsPage = () => {
                                 {student.monthlyStatus.map((status, index) => (
                                     <td key={index} className={status.className}>{status.text}</td>
                                 ))}
-                                <td>${student.previous_year_balance}</td>
+                                <td className={parseFloat(student.previous_year_balance) === 0 ? 'balance-green' : 'balance-red'}>
+                                    ${parseFloat(student.previous_year_balance).toFixed(2)}
+                                </td>
                                 <td>${student.currentBalance < 0 ? `-$${Math.abs(student.currentBalance).toFixed(2)}` : `$${student.currentBalance}`}</td>
                                 <td>${student.totalDue < 0 ? `-$${Math.abs(student.totalDue).toFixed(2)}` : `$${student.totalDue}`}</td>
                             </tr>
