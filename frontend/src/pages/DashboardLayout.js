@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useContext } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import './DashboardLayout.css';
 
 const DashboardLayout = () => {
     const { user, logout, role } = useContext(AuthContext);
@@ -9,6 +10,7 @@ const DashboardLayout = () => {
     const [showConfirm, setShowConfirm] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
     const [message, setMessage] = React.useState('');
+    const [showPopup, setShowPopup] = React.useState(false);
 
     const handleLogout = () => {
         logout();
@@ -23,6 +25,7 @@ const DashboardLayout = () => {
                 headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
             });
             setMessage('New session started successfully!');
+            setShowPopup(true);
         } catch (err) {
             setMessage('Failed to start new session.');
         }
@@ -63,7 +66,16 @@ const DashboardLayout = () => {
                     </div>
                 </div>
             )}
-            {message && <div style={{ margin: '1rem', color: message.includes('success') ? 'green' : 'red' }}>{message}</div>}
+            {showPopup && (
+                <div className="popup-overlay">
+                    <div className="popup-content">
+                        <button className="popup-close" onClick={() => { setShowPopup(false); setMessage(''); }}>×</button>
+                        <div className={message.includes('success') ? 'popup-success' : 'popup-error'}>
+                            {message}
+                        </div>
+                    </div>
+                </div>
+            )}
             <hr />
             <main>
                 <Outlet /> {/* Nested dashboard content will be rendered here */}
