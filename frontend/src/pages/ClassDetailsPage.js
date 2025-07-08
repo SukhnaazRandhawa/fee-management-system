@@ -145,7 +145,7 @@ const ClassDetailsPage = () => {
             const prevSessionStartYear = currentMonth < 3 ? currentDate.getFullYear() - 2 : currentDate.getFullYear() - 1;
             const prevSessionEndYear = prevSessionStartYear + 1;
             const prevAcademicYear = `${prevSessionStartYear}-${prevSessionEndYear}`;
-            const res = await axios.get(`/api/classes/${classId}/fee-history?year=${prevAcademicYear}`);
+            const res = await classService.getFeeHistory(classId, prevAcademicYear);
             setPrevStudents(res.data.students);
         } catch {
             setPrevStudents([]);
