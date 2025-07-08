@@ -152,7 +152,22 @@ router.put('/:id', protect, async (req, res) => {
       return res.status(404).json({ error: 'Student not found.' });
     }
 
-    res.json(result.rows[0]);
+    const updatedStudent = result.rows[0];
+    // Update archived_students with the same student_id
+    await db.query(
+      `UPDATE archived_students
+       SET name = $1, father_name = $2, mother_name = $3, email = $4, phone = $5
+       WHERE student_id = $6`,
+      [
+        updatedStudent.name,
+        updatedStudent.father_name,
+        updatedStudent.mother_name,
+        updatedStudent.email,
+        updatedStudent.phone,
+        updatedStudent.student_id
+      ]
+    );
+    res.json(updatedStudent);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error during student update.' });
