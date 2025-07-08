@@ -132,9 +132,9 @@ router.post('/:classId/import-students', protect, async (req, res) => {
       const archived = result.rows[0];
       // Insert into students table
       const newStudentResult = await db.query(
-        `INSERT INTO students (class_id, name, father_name, mother_name, email, phone, previous_year_balance, status, registration_date)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,'active',NOW()) RETURNING *`,
-        [classId, archived.name, archived.father_name, archived.mother_name, archived.email, archived.phone, archived.final_balance]
+        `INSERT INTO students (student_id, class_id, name, father_name, mother_name, email, phone, previous_year_balance, status, registration_date)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'active',NOW()) RETURNING *`,
+        [archived.student_id, classId, archived.name, archived.father_name, archived.mother_name, archived.email, archived.phone, archived.final_balance]
       );
       imported.push(newStudentResult.rows[0]);
     }

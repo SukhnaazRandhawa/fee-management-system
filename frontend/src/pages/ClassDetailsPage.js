@@ -152,6 +152,7 @@ const ClassDetailsPage = () => {
     };
 
     const handleImport = async () => {
+        console.log('handleImport called', { classId, prevClassId, selectedStudents });
         setImportLoading(true);
         setImportError('');
         setImportSuccess('');
@@ -163,8 +164,9 @@ const ClassDetailsPage = () => {
             setImportSuccess('Students imported successfully!');
             setShowImportModal(false);
             window.location.reload(); // reload to show new students
-        } catch {
+        } catch (err) {
             setImportError('Failed to import students.');
+            console.error('Import error:', err);
         }
         setImportLoading(false);
     };
