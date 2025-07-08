@@ -143,7 +143,7 @@ router.post('/:classId/import-students', protect, async (req, res) => {
           [existingStudent.rows[0].class_id]
         );
         const className = classResult.rows.length > 0 ? classResult.rows[0].name : 'Unknown';
-        return res.status(409).json({ error: `Student already imported in ${className}.` });
+        return res.status(409).json({ error: `Student already imported` });
       }
 
       // Insert into students table
