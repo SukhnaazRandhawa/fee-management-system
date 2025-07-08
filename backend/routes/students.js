@@ -116,6 +116,67 @@ router.post('/search', protect, async (req, res) => {
     }
 });
 
+// @route   PUT /api/students/:id
+// @desc    Update a student's information
+// @access  Private
+router.put('/:id', protect, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { class_id, name, father_name, mother_name, email, phone, previous_year_balance, status } = req.body;
+    // Only update fields that are provided
+    const updateFields = [];
+    const updateValues = [];
+    let idx = 1;
+
+    if (class_id) { updateFields.push(`class_id = $${idx++}`); updateValues.push(class_id); }
+    if (name) { updateFields.push(`name = $${idx++}`); updateValues.push(name); }
+    if (father_name) { updateFields.push(`father_name = $${idx++}`); updateValues.push(father_name); }
+    if (mother_name) { updateFields.push(`mother_name = $${idx++}`); updateValues.push(mother_name); }
+    if (email !== undefined) { updateFields.push(`email = $${idx++}`); updateValues.push(email); }
+    if (phone) { updateFields.push(`phone = $${idx++}`); updateValues.push(phone); }
+    if (previous_year_balance !== undefined) { updateFields.push(`previous_year_balance = $${idx++}`); updateValues.push(previous_year_balance); }
+    if (status) { updateFields.push(`status = $${idx++}`); updateValues.push(status); }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ error: 'No fields to update.' });
+    }
+
+    updateValues.push(id);
+
+    const result = await db.query(
+      `UPDATE students SET ${updateFields.join(', ')} WHERE id = $${idx} RETURNING *`,
+      updateValues
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Student not found.' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during student update.' });
+  }
+});
+
+// @route   DELETE /api/students/:id
+// @desc    Delete a student
+// @access  Private
+router.delete('/:id', protect, async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Optionally, you can check if the student exists first
+    const result = await db.query('DELETE FROM students WHERE id = $1 RETURNING *', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Student not found.' });
+    }
+    res.json({ message: 'Student deleted successfully.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during student deletion.' });
+  }
+});
+
 // The old /find/:studentId route is now replaced by the /search route.
 
 module.exports = router; 

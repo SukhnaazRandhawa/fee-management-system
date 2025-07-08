@@ -5,6 +5,26 @@ import paymentService from '../services/paymentService';
 import studentService from '../services/studentService';
 import './ClassDetailsPage.css';
 
+const fetchData = async (classId, setClassDetails, setStudents, setPayments, setError, setLoading) => {
+    try {
+        setLoading(true);
+        const [classRes, studentsRes, paymentsRes] = await Promise.all([
+            classService.getClassById(classId),
+            studentService.getStudentsByClass(classId),
+            paymentService.getPaymentsByClass(classId),
+        ]);
+        setClassDetails(classRes.data);
+        setStudents(studentsRes.data);
+        setPayments(paymentsRes.data);
+        setError(null);
+    } catch (err) {
+        setError('Failed to fetch class data.');
+        console.error(err);
+    } finally {
+        setLoading(false);
+    }
+};
+
 const ClassDetailsPage = () => {
     const { classId } = useParams();
     const [classDetails, setClassDetails] = useState(null);
@@ -20,28 +40,12 @@ const ClassDetailsPage = () => {
     const [importLoading, setImportLoading] = useState(false);
     const [importError, setImportError] = useState('');
     const [importSuccess, setImportSuccess] = useState('');
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editForm, setEditForm] = useState({});
+    const [editError, setEditError] = useState('');
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const [classRes, studentsRes, paymentsRes] = await Promise.all([
-                    classService.getClassById(classId),
-                    studentService.getStudentsByClass(classId),
-                    paymentService.getPaymentsByClass(classId),
-                ]);
-                setClassDetails(classRes.data);
-                setStudents(studentsRes.data);
-                setPayments(paymentsRes.data);
-                setError(null);
-            } catch (err) {
-                setError('Failed to fetch class data.');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
+        fetchData(classId, setClassDetails, setStudents, setPayments, setError, setLoading);
     }, [classId]);
 
     const academicYearMonths = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
@@ -175,6 +179,44 @@ const ClassDetailsPage = () => {
         setImportLoading(false);
     };
 
+    const handleEditStudent = (student) => {
+        console.log('Editing student:', student);
+        setEditForm({ ...student });
+        setShowEditModal(true);
+        setEditError('');
+    };
+
+    const handleEditFormChange = (e) => {
+        setEditForm({ ...editForm, [e.target.name]: e.target.value });
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        setEditError('');
+        try {
+            await studentService.updateStudent(editForm.id, editForm);
+            setShowEditModal(false);
+            // Refresh students list
+            // (call your fetch students function here)
+            await fetchData(classId, setClassDetails, setStudents, setPayments, setError, setLoading);
+        } catch (err) {
+            setEditError('Failed to update student.');
+        }
+    };
+
+    const handleDeleteStudent = async (student) => {
+        console.log('Deleting student:', student);
+        if (window.confirm(`Are you sure you want to delete ${student.name}?`)) {
+            try {
+                await studentService.deleteStudent(student.id);
+                // Refresh students list
+                await fetchData(classId, setClassDetails, setStudents, setPayments, setError, setLoading);
+            } catch (err) {
+                alert('Failed to delete student.');
+            }
+        }
+    };
+
     if (loading) return <div>Loading class details...</div>;
     if (error) return <div>{error}</div>;
 
@@ -234,6 +276,7 @@ const ClassDetailsPage = () => {
                             <th>Previous Balance</th>
                             <th>Current Balance</th>
                             <th>Due</th>
+                            <th>Modifications</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -252,11 +295,33 @@ const ClassDetailsPage = () => {
                                 </td>
                                 <td>${student.currentBalance < 0 ? `-$${Math.abs(student.currentBalance).toFixed(2)}` : `$${student.currentBalance}`}</td>
                                 <td>${student.totalDue < 0 ? `-$${Math.abs(student.totalDue).toFixed(2)}` : `$${student.totalDue}`}</td>
+                                <td>
+                                    <button onClick={() => handleEditStudent(student)}>Modify</button>
+                                    <button onClick={() => handleDeleteStudent(student)}>Delete</button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+            {showEditModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Edit Student</h3>
+                        <form onSubmit={handleEditSubmit}>
+                            <input name="name" value={editForm.name || ''} onChange={handleEditFormChange} placeholder="Name" />
+                            <input name="father_name" value={editForm.father_name || ''} onChange={handleEditFormChange} placeholder="Father's Name" />
+                            <input name="mother_name" value={editForm.mother_name || ''} onChange={handleEditFormChange} placeholder="Mother's Name" />
+                            <input name="email" value={editForm.email || ''} onChange={handleEditFormChange} placeholder="Email" />
+                            <input name="phone" value={editForm.phone || ''} onChange={handleEditFormChange} placeholder="Phone" />
+                            {/* Add other fields as needed */}
+                            {editError && <div style={{ color: 'red' }}>{editError}</div>}
+                            <button type="submit">Save</button>
+                            <button type="button" onClick={() => setShowEditModal(false)}>Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

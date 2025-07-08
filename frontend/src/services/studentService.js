@@ -23,10 +23,24 @@ const getStudentsByClass = (classId) => {
     return axios.get(API_URL + `?classId=${classId}`, { headers: getAuthHeader() });
 };
 
+const updateStudent = (id, data) => {
+    return axios.put(`http://localhost:5050/api/students/${id}`, data, {
+        headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
+    });
+};
+
+const deleteStudent = (id) => {
+    return axios.delete(`http://localhost:5050/api/students/${id}`, {
+        headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
+    });
+};
+
 const studentService = {
     registerStudent,
     searchStudent,
     getStudentsByClass,
+    updateStudent,
+    deleteStudent,
 };
 
 export default studentService; 
