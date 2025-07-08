@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import classService from '../services/classService';
@@ -157,7 +156,7 @@ const ClassDetailsPage = () => {
         setImportError('');
         setImportSuccess('');
         try {
-            await axios.post(`/api/classes/${classId}/import-students`, {
+            await classService.importStudents(classId, {
                 sourceClassId: prevClassId,
                 studentIds: selectedStudents
             });
