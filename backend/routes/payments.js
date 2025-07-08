@@ -27,20 +27,41 @@ router.post('/', protect, async (req, res) => {
       return res.status(404).json({ error: 'Student not found or not authorized.' });
     }
 
-    // Insert payment
-    const newPaymentResult = await db.query(
-      `INSERT INTO payments (student_id, amount_paid, payment_method, academic_year)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [student_id, amount_paid, payment_method, academic_year]
-    );
+    // 1. Get the student's previous year balance
+    const studentData = await db.query('SELECT previous_year_balance FROM students WHERE id = $1', [student_id]);
+    let prevBalance = parseFloat(studentData.rows[0].previous_year_balance);
+    let paymentAmount = parseFloat(amount_paid);
+
+    let toPrev = 0;
+    let toCurrent = 0;
+
+    if (prevBalance > 0) {
+        toPrev = Math.min(paymentAmount, prevBalance);
+        prevBalance -= toPrev;
+        paymentAmount -= toPrev;
+        // Update previous_year_balance in DB
+        await db.query('UPDATE students SET previous_year_balance = $1 WHERE id = $2', [prevBalance, student_id]);
+    }
+
+    // Only record a payment for the current year if there is any left after clearing previous balance
+    let newPaymentResult = null;
+    if (paymentAmount > 0) {
+        newPaymentResult = await db.query(
+          `INSERT INTO payments (student_id, amount_paid, payment_method, academic_year)
+           VALUES ($1, $2, $3, $4) RETURNING *`,
+          [student_id, paymentAmount, payment_method, academic_year]
+        );
+    }
 
     // Fetch school details for receipt
     const schoolResult = await db.query('SELECT name, location FROM schools WHERE id = $1', [schoolId]);
     const schoolDetails = schoolResult.rows[0];
 
     res.status(201).json({
-      ...newPaymentResult.rows[0],
-      schoolDetails
+      ...(newPaymentResult ? newPaymentResult.rows[0] : {}),
+      schoolDetails,
+      previousBalancePaid: toPrev,
+      currentYearPaid: paymentAmount
     });
   } catch (err) {
     console.error(err);
