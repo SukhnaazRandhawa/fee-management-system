@@ -165,7 +165,11 @@ const ClassDetailsPage = () => {
             setShowImportModal(false);
             window.location.reload(); // reload to show new students
         } catch (err) {
-            setImportError('Failed to import students.');
+            if (err.response && err.response.status === 409 && err.response.data && err.response.data.error) {
+                setImportError(err.response.data.error); // Show backend error
+            } else {
+                setImportError('Failed to import students.');
+            }
             console.error('Import error:', err);
         }
         setImportLoading(false);

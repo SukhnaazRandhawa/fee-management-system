@@ -130,6 +130,22 @@ router.post('/:classId/import-students', protect, async (req, res) => {
       );
       if (result.rows.length === 0) continue;
       const archived = result.rows[0];
+
+      // Check if student_id already exists in students table
+      const existingStudent = await db.query(
+        `SELECT class_id FROM students WHERE student_id = $1`,
+        [archived.student_id]
+      );
+      if (existingStudent.rows.length > 0) {
+        // Get class name for the class_id
+        const classResult = await db.query(
+          `SELECT name FROM classes WHERE id = $1`,
+          [existingStudent.rows[0].class_id]
+        );
+        const className = classResult.rows.length > 0 ? classResult.rows[0].name : 'Unknown';
+        return res.status(409).json({ error: `Student already imported in ${className}.` });
+      }
+
       // Insert into students table
       const newStudentResult = await db.query(
         `INSERT INTO students (student_id, class_id, name, father_name, mother_name, email, phone, previous_year_balance, status, registration_date)
