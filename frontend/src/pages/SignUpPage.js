@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import countryList from 'react-select-country-list';
 import authService from '../services/authService';
 import './SignUpPage.css';
 
@@ -91,6 +92,7 @@ const SignUpPage = () => {
     staff_password: '',
     confirmPrincipalPassword: '',
     confirmStaffPassword: '',
+    country: '',
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -107,6 +109,7 @@ const SignUpPage = () => {
     if (!formData.principal_email) newErrors.principal_email = 'Principal email is required.';
     if (!formData.location) newErrors.location = 'Location is required.';
     if (!formData.numClasses) newErrors.numClasses = 'Number of classes is required.';
+    if (!formData.country) newErrors.country = 'Country is required.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -149,7 +152,8 @@ const SignUpPage = () => {
         formData.location,
         formData.numClasses,
         formData.principal_password,
-        formData.staff_password
+        formData.staff_password,
+        formData.country
       );
       alert('School registered successfully! Please log in.');
       navigate('/login');
@@ -157,6 +161,12 @@ const SignUpPage = () => {
       alert('Registration failed: ' + (error.response?.data?.error || error.message));
     }
   };
+
+  // This gives you an array of all country/currency objects
+  const countries = countryList().getData(); // [{ value: 'US', label: 'United States' }, ...]
+
+  // Debug: log the countries array
+  //console.log('Countries for dropdown:', countries);
 
   return (
     <div className="signup-bg">
@@ -221,6 +231,20 @@ const SignUpPage = () => {
                 className={`signup-input${errors.numClasses ? ' input-error' : ''}`}
               />
               {errors.numClasses && <div className="signup-error">{errors.numClasses}</div>}
+              <label className="signup-label">Country</label>
+              <select
+                name="country"
+                value={formData.country || ''}
+                onChange={handleChange}
+                required
+                className={`signup-input${errors.country ? ' input-error' : ''}`}
+              >
+                <option value="">Select Country</option>
+                {countries.map(c => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </select>
+              {errors.country && <div className="signup-error">{errors.country}</div>}
               <button type="button" className="signup-btn-primary" onClick={handleNextStep}>Continue</button>
             </>
           )}

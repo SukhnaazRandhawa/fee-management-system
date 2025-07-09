@@ -10,8 +10,8 @@ const router = express.Router();
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { name, school_email, principal_email, location, numClasses, principal_password, staff_password } = req.body;
-    if (!name || !school_email || !principal_email || !location || !numClasses || !principal_password || !staff_password) {
+    const { name, school_email, principal_email, location, numClasses, principal_password, staff_password, country } = req.body;
+    if (!name || !school_email || !principal_email || !location || !numClasses || !principal_password || !staff_password || !country) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
     // Check if school or users already exist
@@ -28,8 +28,8 @@ router.post('/register', async (req, res) => {
     const hashedStaffPassword = await bcrypt.hash(staff_password, 10);
     // Insert school
     const schoolResult = await db.query(
-      'INSERT INTO schools (name, email, location, num_classes) VALUES ($1, $2, $3, $4) RETURNING id',
-      [name, school_email, location, parseInt(numClasses, 10)]
+      'INSERT INTO schools (name, email, location, num_classes, country) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [name, school_email, location, parseInt(numClasses, 10), country]
     );
     const schoolId = schoolResult.rows[0].id;
     // Insert principal user
