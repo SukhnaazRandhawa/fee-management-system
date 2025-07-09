@@ -32,25 +32,27 @@ router.post('/', protect, async (req, res) => {
     let prevBalance = parseFloat(studentData.rows[0].previous_year_balance);
     let paymentAmount = parseFloat(amount_paid);
 
-    let toPrev = 0;
-    let toCurrent = 0;
+    // Always record the payment
+    const newPaymentResult = await db.query(
+      `INSERT INTO payments (student_id, amount_paid, payment_method, academic_year)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [student_id, amount_paid, payment_method, academic_year]
+    );
+
+    // Now apply the payment to previous balance and/or current year
+    let paymentLeft = parseFloat(amount_paid);
+    let prevPaid = 0;
+    let currentPaid = 0;
 
     if (prevBalance > 0) {
-        toPrev = Math.min(paymentAmount, prevBalance);
-        prevBalance -= toPrev;
-        paymentAmount -= toPrev;
-        // Update previous_year_balance in DB
+        prevPaid = Math.min(paymentLeft, prevBalance);
+        prevBalance -= prevPaid;
+        paymentLeft -= prevPaid;
         await db.query('UPDATE students SET previous_year_balance = $1 WHERE id = $2', [prevBalance, student_id]);
     }
-
-    // Only record a payment for the current year if there is any left after clearing previous balance
-    let newPaymentResult = null;
-    if (paymentAmount > 0) {
-        newPaymentResult = await db.query(
-          `INSERT INTO payments (student_id, amount_paid, payment_method, academic_year)
-           VALUES ($1, $2, $3, $4) RETURNING *`,
-          [student_id, paymentAmount, payment_method, academic_year]
-        );
+    if (paymentLeft > 0) {
+        currentPaid = paymentLeft;
+        // (You may want to update current year fee status here if needed)
     }
 
     // Fetch school details for receipt
@@ -60,8 +62,8 @@ router.post('/', protect, async (req, res) => {
     res.status(201).json({
       ...(newPaymentResult ? newPaymentResult.rows[0] : {}),
       schoolDetails,
-      previousBalancePaid: toPrev,
-      currentYearPaid: paymentAmount
+      previousBalancePaid: prevPaid,
+      currentYearPaid: currentPaid
     });
   } catch (err) {
     console.error(err);
