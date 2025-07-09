@@ -48,6 +48,24 @@ router.get('/all-for-history', protect, async (req, res) => {
   }
 });
 
+// GET /api/classes/archived-for-year?year=YYYY-YYYY
+// Returns all classes from archived_students for the given academic year
+router.get('/archived-for-year', protect, async (req, res) => {
+  try {
+    const schoolId = req.school.schoolId;
+    const { year } = req.query;
+    if (!year) return res.status(400).json({ error: 'Year is required.' });
+    const result = await db.query(
+      'SELECT DISTINCT class_id as id, class_name as name FROM archived_students WHERE school_id = $1 AND academic_year = $2',
+      [schoolId, year]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error fetching archived classes for year.' });
+  }
+});
+
 // @route   PUT /api/classes/:id
 // @desc    Update a class's details
 // @access  Private

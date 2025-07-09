@@ -45,6 +45,10 @@ const getAllClassesForHistory = () => {
     return axios.get('http://localhost:5050/api/classes/all-for-history', { headers: getAuthHeader() });
 };
 
+const getArchivedClassesForYear = (year) => {
+    return axios.get(`http://localhost:5050/api/classes/archived-for-year?year=${year}`, { headers: getAuthHeader() });
+};
+
 const classService = {
     getClasses,
     updateClass,
@@ -54,6 +58,7 @@ const classService = {
     getFeeHistory,
     importStudents,
     getAllClassesForHistory,
+    getArchivedClassesForYear,
 };
 
 export default classService; 

@@ -127,9 +127,21 @@ const ClassDetailsPage = () => {
         setImportError('');
         setImportSuccess('');
         try {
-            const res = await classService.getAllClassesForHistory(); // get all classes (current + historical)
+            // Get current session from backend
+            const sessionRes = await fetch('http://localhost:5050/api/dashboard/session', {
+                headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
+            });
+            const sessionData = await sessionRes.json();
+            const currentSession = sessionData.currentSession;
+            // Calculate previous academic year
+            const [start, end] = currentSession.split('-').map(Number);
+            const prevStart = start - 1;
+            const prevEnd = end - 1;
+            const prevAcademicYear = `${prevStart}-${prevEnd}`;
+            // Fetch only previous year's classes
+            const res = await classService.getArchivedClassesForYear(prevAcademicYear);
             setPrevClasses(res.data);
-        } catch {
+        } catch (err) {
             setPrevClasses([]);
         }
     };
