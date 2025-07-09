@@ -64,9 +64,7 @@ router.get('/summary', protect, async (req, res) => {
         const currentMonthCollection = parseFloat(monthCollectionResult.rows[0].sum) || 0;
 
         // 3b. Current academic year's collection (April to March)
-        // Academic year starts in April and ends in March next year
-        const currentDate = new Date("2026-04-02T10:00:00Z"); // <-- REMOVE THIS after testing
-        // const currentDate = new Date(); // <-- Restore this after testing
+        const currentDate = new Date();
         const currentMonth = currentDate.getMonth(); // 0-11 (Jan-Dec)
         const academicSessionStartYear = currentMonth < 3 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
         const academicSessionEndYear = academicSessionStartYear + 1;
@@ -218,8 +216,7 @@ router.get('/session', protect, async (req, res) => {
 router.post('/rollover', protect, requirePrincipal, async (req, res) => {
     try {
         const schoolId = req.user.schoolId;
-        const currentDate = new Date("2026-04-02T10:00:00Z"); // <-- REMOVE THIS after testing
-        // const currentDate = new Date(); // <-- Restore this after testing
+        const currentDate = new Date();
 
         // 1. Get the current session from the sessions table
         const sessionResult = await db.query('SELECT academic_year FROM sessions WHERE is_current = TRUE LIMIT 1');
