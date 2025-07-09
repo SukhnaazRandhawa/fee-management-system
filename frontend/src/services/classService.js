@@ -41,6 +41,10 @@ const importStudents = (classId, importData) => {
     return axios.post(API_URL + `${classId}/import-students`, importData, { headers: getAuthHeader() });
 };
 
+const getAllClassesForHistory = () => {
+    return axios.get('http://localhost:5050/api/classes/all-for-history', { headers: getAuthHeader() });
+};
+
 const classService = {
     getClasses,
     updateClass,
@@ -49,6 +53,7 @@ const classService = {
     getFeeHistoryYears,
     getFeeHistory,
     importStudents,
+    getAllClassesForHistory,
 };
 
 export default classService; 

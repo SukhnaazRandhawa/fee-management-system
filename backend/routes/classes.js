@@ -18,6 +18,36 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
+// GET /api/classes/all-for-history
+// Returns all classes (current and historical) for the logged-in school
+router.get('/all-for-history', protect, async (req, res) => {
+  try {
+    const schoolId = req.school.schoolId;
+    // Get current classes
+    const currentClassesResult = await db.query(
+      'SELECT id, name FROM classes WHERE school_id = $1', [schoolId]
+    );
+    const currentClasses = currentClassesResult.rows;
+    // Get historical classes from archived_students
+    const archivedClassesResult = await db.query(
+      'SELECT DISTINCT class_id as id, class_name as name FROM archived_students WHERE school_id = $1', [schoolId]
+    );
+    const archivedClasses = archivedClassesResult.rows;
+    // Merge and deduplicate by id
+    const allClassesMap = new Map();
+    for (const c of [...currentClasses, ...archivedClasses]) {
+      if (!allClassesMap.has(c.id)) {
+        allClassesMap.set(c.id, c);
+      }
+    }
+    const allClasses = Array.from(allClassesMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    res.json(allClasses);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error fetching all classes for history.' });
+  }
+});
+
 // @route   PUT /api/classes/:id
 // @desc    Update a class's details
 // @access  Private
@@ -211,5 +241,7 @@ router.get('/:classId/fee-history-years', protect, async (req, res) => {
     res.status(500).json({ error: 'Server error fetching years.' });
   }
 });
+
+
 
 module.exports = router;

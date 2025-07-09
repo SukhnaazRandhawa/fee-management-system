@@ -127,7 +127,7 @@ const ClassDetailsPage = () => {
         setImportError('');
         setImportSuccess('');
         try {
-            const res = await classService.getClasses(); // get all classes
+            const res = await classService.getAllClassesForHistory(); // get all classes (current + historical)
             setPrevClasses(res.data);
         } catch {
             setPrevClasses([]);

@@ -11,8 +11,8 @@ const ViewFeeHistory = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Fetch all classes
-    classService.getClasses().then(res => setClasses(res.data)).catch(() => setClasses([]));
+    // Fetch all classes (current + historical)
+    classService.getAllClassesForHistory().then(res => setClasses(res.data)).catch(() => setClasses([]));
   }, []);
 
   useEffect(() => {

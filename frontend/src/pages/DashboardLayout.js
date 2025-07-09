@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './DashboardLayout.css';
@@ -11,6 +11,21 @@ const DashboardLayout = () => {
     const [loading, setLoading] = React.useState(false);
     const [message, setMessage] = React.useState('');
     const [showPopup, setShowPopup] = React.useState(false);
+    const [currentSession, setCurrentSession] = useState('');
+
+    useEffect(() => {
+        const fetchSession = async () => {
+            try {
+                const res = await axios.get('http://localhost:5050/api/dashboard/session', {
+                    headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
+                });
+                setCurrentSession(res.data.currentSession);
+            } catch {
+                setCurrentSession('');
+            }
+        };
+        fetchSession();
+    }, []);
 
     const handleLogout = () => {
         logout();
@@ -26,8 +41,14 @@ const DashboardLayout = () => {
             });
             setMessage('New session started successfully!');
             setShowPopup(true);
+            // Refetch session after rollover
+            const res = await axios.get('http://localhost:5050/api/dashboard/session', {
+                headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
+            });
+            setCurrentSession(res.data.currentSession);
         } catch (err) {
-            setMessage('Failed to start new session.');
+            setMessage(err.response?.data?.error || 'Failed to start new session.');
+            setShowPopup(true);
         }
         setLoading(false);
         setShowConfirm(false);
@@ -36,6 +57,9 @@ const DashboardLayout = () => {
     return (
         <div>
             <header>
+                <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#5E2CA5', marginBottom: '0.2rem' }}>
+                    Current Session: {currentSession || 'Loading...'}
+                </div>
                 <h2>{user?.schoolName}</h2>
                 <nav>
                     <Link to="classes">Classes</Link>

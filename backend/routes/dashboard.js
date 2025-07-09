@@ -65,19 +65,18 @@ router.get('/summary', protect, async (req, res) => {
 
         // 3b. Current academic year's collection (April to March)
         // Academic year starts in April and ends in March next year
-        const currentDate = new Date();
+        const currentDate = new Date("2026-04-02T10:00:00Z"); // <-- REMOVE THIS after testing
+        // const currentDate = new Date(); // <-- Restore this after testing
         const currentMonth = currentDate.getMonth(); // 0-11 (Jan-Dec)
         const academicSessionStartYear = currentMonth < 3 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
         const academicSessionEndYear = academicSessionStartYear + 1;
-        const academicYearStart = `${academicSessionStartYear}-04-01`;
-        const academicYearEnd = `${academicSessionEndYear}-03-31`;
         const academicYearString = `${academicSessionStartYear}-${academicSessionEndYear}`;
         const academicYearCollectionResult = await db.query(
             `SELECT SUM(p.amount_paid) FROM payments p
              JOIN students s ON p.student_id = s.id
              JOIN classes c ON s.class_id = c.id
              WHERE c.school_id = $1 AND p.payment_date >= $2 AND p.payment_date <= $3`,
-            [schoolId, academicYearStart, academicYearEnd]
+            [schoolId, `${academicSessionStartYear}-04-01`, `${academicSessionEndYear}-03-31`]
         );
         const currentAcademicYearCollection = parseFloat(academicYearCollectionResult.rows[0].sum) || 0;
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -187,20 +186,73 @@ router.get('/summary', protect, async (req, res) => {
     }
 });
 
+// Utility to get current academic year (April-March)
+function getCurrentAcademicYear() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth(); // 0=Jan, 3=Apr
+    const startYear = month < 3 ? year - 1 : year;
+    const endYear = startYear + 1;
+    return `${startYear}-${endYear}`;
+}
+
+// GET /api/dashboard/session - get current session
+router.get('/session', protect, async (req, res) => {
+    try {
+        const sessionResult = await db.query('SELECT academic_year FROM sessions WHERE is_current = TRUE LIMIT 1');
+        if (sessionResult.rows.length > 0) {
+            res.json({ currentSession: sessionResult.rows[0].academic_year });
+        } else {
+            // Fallback: calculate from date
+            res.json({ currentSession: getCurrentAcademicYear() });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error fetching session.' });
+    }
+});
+
 // @route   POST /api/dashboard/rollover
 // @desc    Archive current year data and start a new session (principal only)
 // @access  Private, Principal only
 router.post('/rollover', protect, requirePrincipal, async (req, res) => {
     try {
         const schoolId = req.user.schoolId;
-        // 1. Determine current and next academic year
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth();
-        const academicSessionStartYear = currentMonth < 3 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
-        const academicSessionEndYear = academicSessionStartYear + 1;
-        const academicYear = `${academicSessionStartYear}-${academicSessionEndYear}`;
+        const currentDate = new Date("2026-04-02T10:00:00Z"); // <-- REMOVE THIS after testing
+        // const currentDate = new Date(); // <-- Restore this after testing
 
-        // 2. Get all active students for this school
+        // 1. Get the current session from the sessions table
+        const sessionResult = await db.query('SELECT academic_year FROM sessions WHERE is_current = TRUE LIMIT 1');
+        let currentSession;
+        if (sessionResult.rows.length > 0) {
+            currentSession = sessionResult.rows[0].academic_year;
+        } else {
+            // Fallback: calculate from date
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const startYear = month < 3 ? year - 1 : year;
+            const endYear = startYear + 1;
+            currentSession = `${startYear}-${endYear}`;
+        }
+
+        // 2. Calculate next session
+        const [start, end] = currentSession.split('-').map(Number);
+        const nextSessionStartYear = end;
+        const nextSessionEndYear = nextSessionStartYear + 1;
+        const nextSession = `${nextSessionStartYear}-${nextSessionEndYear}`;
+
+        // 3. Only allow rollover if current date is April 1st or later of the next session's start year
+        const minRolloverDate = new Date(nextSessionStartYear, 3, 1); // April 1st of next session start year
+        if (currentDate < minRolloverDate) {
+            return res.status(400).json({ error: `Cannot start ${nextSession} session before April ${nextSessionStartYear}.` });
+        }
+
+        // 4. Mark all previous sessions as not current
+        await db.query('UPDATE sessions SET is_current = FALSE');
+        // 5. Insert new session if not exists, set as current
+        await db.query('INSERT INTO sessions (academic_year, is_current) VALUES ($1, TRUE) ON CONFLICT (academic_year) DO UPDATE SET is_current = TRUE', [nextSession]);
+
+        // 6. Get all active students for this school
         const studentsResult = await db.query(
             `SELECT s.*, c.name as class_name FROM students s
              JOIN classes c ON s.class_id = c.id
@@ -209,12 +261,12 @@ router.post('/rollover', protect, requirePrincipal, async (req, res) => {
         );
         const students = studentsResult.rows;
 
-        // 3. For each student, archive their data and payments
+        // 7. For each student, archive their data and payments
         for (const student of students) {
             // Get all payments for this student for the current academic year
             const paymentsResult = await db.query(
                 `SELECT * FROM payments WHERE student_id = $1 AND academic_year = $2`,
-                [student.id, academicYear]
+                [student.id, currentSession]
             );
             // Calculate final balance (current balance at end of year)
             const totalPaid = paymentsResult.rows.reduce((sum, p) => sum + parseFloat(p.amount_paid), 0);
@@ -230,7 +282,7 @@ router.post('/rollover', protect, requirePrincipal, async (req, res) => {
             const archivedStudentResult = await db.query(
                 `INSERT INTO archived_students (school_id, class_id, academic_year, student_id, name, father_name, mother_name, email, phone, previous_year_balance, final_balance, status, registration_date, class_name)
                  VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
-                [schoolId, student.class_id, academicYear, student.student_id, student.name, student.father_name, student.mother_name, student.email, student.phone, student.previous_year_balance, finalBalance, student.status, student.registration_date, student.class_name]
+                [schoolId, student.class_id, currentSession, student.student_id, student.name, student.father_name, student.mother_name, student.email, student.phone, student.previous_year_balance, finalBalance, student.status, student.registration_date, student.class_name]
             );
             const archivedStudentId = archivedStudentResult.rows[0].id;
             // Insert all payments into archived_payments
@@ -243,13 +295,14 @@ router.post('/rollover', protect, requirePrincipal, async (req, res) => {
             }
         }
 
-        // 4. Mark all students as inactive and clear their class assignments
+        // 8. Mark all students as inactive and clear their class assignments
         await db.query(`UPDATE students SET status = 'inactive'`);
-
-        // 5. Optionally, clear previous_year_balance for all students (will be set on import)
+        // 9. Optionally, clear previous_year_balance for all students (will be set on import)
         await db.query(`UPDATE students SET previous_year_balance = 0`);
+        // 10. Delete all classes for this school
+        await db.query('DELETE FROM classes WHERE school_id = $1', [schoolId]);
 
-        res.json({ message: 'Session rollover complete. All data archived and classes cleared for new session.' });
+        res.json({ message: `Session rollover complete. ${nextSession} is now current. All data archived and classes cleared for new session.` });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error during session rollover.' });
