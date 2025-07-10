@@ -235,7 +235,7 @@ const ClassDetailsPage = () => {
     return (
         <div className="class-details-view">
             <h2>{classDetails?.name} - Fee Status</h2>
-            <button onClick={() => { setShowImportModal(true); fetchPrevClasses(); }} style={{ marginBottom: '1rem', background: '#2980b9', color: 'white' }}>
+            <button className="import-btn" onClick={() => { setShowImportModal(true); fetchPrevClasses(); }}>
                 Import Students
             </button>
             {showImportModal && (
@@ -275,7 +275,7 @@ const ClassDetailsPage = () => {
                     </div>
                 </div>
             )}
-            <div className="table-container">
+            <div className="table-card">
                 <table>
                     <thead>
                         <tr>
@@ -308,8 +308,8 @@ const ClassDetailsPage = () => {
                                 <td>${student.currentBalance < 0 ? `-$${Math.abs(student.currentBalance).toFixed(2)}` : `$${student.currentBalance}`}</td>
                                 <td>${student.totalDue < 0 ? `-$${Math.abs(student.totalDue).toFixed(2)}` : `$${student.totalDue}`}</td>
                                 <td>
-                                    <button onClick={() => handleEditStudent(student)}>Modify</button>
-                                    <button onClick={() => handleDeleteStudent(student)}>Delete</button>
+                                    <button className="modify-btn" onClick={() => handleEditStudent(student)}>Modify</button>
+                                    <button className="delete-btn" onClick={() => handleDeleteStudent(student)}>Delete</button>
                                 </td>
                             </tr>
                         ))}
