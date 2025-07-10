@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import MobileLoginSVG from '../assets/mobile-login.svg';
 import { AuthContext } from '../context/AuthContext';
 import './LoginPage.css';
 
@@ -38,12 +39,15 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="login-bg">
-      <div className="login-card">
-        <BilloraLogo />
-        <h1 className="login-title">Log In</h1>
-        <form onSubmit={handleSubmit} className="login-form">
-          <div>
+    <div className="login-bg-row">
+      <div className="login-illustration-col">
+        <img src={MobileLoginSVG} alt="Login illustration" className="login-illustration" />
+      </div>
+      <div className="login-card-col">
+        <div className="login-card">
+          <BilloraLogo />
+          <h1 className="login-title">Log In</h1>
+          <form onSubmit={handleSubmit} className="login-form">
             <label className="login-label">Email</label>
             <input
               type="email"
@@ -53,8 +57,6 @@ const LoginPage = () => {
               required
               className="login-input"
             />
-          </div>
-          <div>
             <label className="login-label">Password</label>
             <input
               type="password"
@@ -64,17 +66,17 @@ const LoginPage = () => {
               required
               className="login-input"
             />
+            <button type="submit" className="login-btn-primary">Log In</button>
+          </form>
+          {error && <div className="login-error">{error}</div>}
+          <div>
+            <p className="login-link">
+              <Link to="/forgot-password">Forgot Password?</Link>
+            </p>
+            <p className="login-link">
+              Don't have an account? <Link to="/signup">Sign Up</Link>
+            </p>
           </div>
-          <button type="submit" className="login-btn-primary">Log In</button>
-        </form>
-        {error && <div className="login-error">{error}</div>}
-        <div>
-          <p className="login-link">
-            <Link to="/forgot-password">Forgot Password?</Link>
-          </p>
-          <p className="login-link">
-            Don't have an account? <Link to="/signup">Sign Up</Link>
-          </p>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import ForgotPasswordSVG from '../assets/forgot-password.svg';
 import authService from '../services/authService';
 import './ForgotPasswordPage.css';
 
@@ -43,13 +44,16 @@ const ForgotPasswordPage = () => {
   }, [message]);
 
   return (
-    <div className="forgot-bg">
-      <div className="forgot-card">
-        <BilloraLogo />
-        <h1 className="forgot-title">Forgot Password</h1>
-        <p>Enter your school's name and email to receive a password reset link.</p>
-        <form onSubmit={handleSubmit} className="forgot-form">
-          <div>
+    <div className="forgot-bg-row">
+      <div className="forgot-illustration-col">
+        <img src={ForgotPasswordSVG} alt="Forgot password illustration" className="forgot-illustration" />
+      </div>
+      <div className="forgot-card-col">
+        <div className="forgot-card">
+          <BilloraLogo />
+          <h1 className="forgot-title">Forgot Password</h1>
+          <p>Enter your school's name and email to receive a password reset link.</p>
+          <form onSubmit={handleSubmit} className="forgot-form">
             <label className="forgot-label">School Name</label>
             <input
               type="text"
@@ -59,8 +63,6 @@ const ForgotPasswordPage = () => {
               required
               className="forgot-input"
             />
-          </div>
-          <div>
             <label className="forgot-label">Email Address</label>
             <input
               type="email"
@@ -70,13 +72,13 @@ const ForgotPasswordPage = () => {
               required
               className="forgot-input"
             />
+            <button type="submit" className="forgot-btn-primary">Send Reset Link</button>
+          </form>
+          {message && <div className="forgot-success">{message}</div>}
+          {error && <div className="forgot-error">{error}</div>}
+          <div>
+            <Link to="/login" className="forgot-link">Back to Log In</Link>
           </div>
-          <button type="submit" className="forgot-btn-primary">Send Reset Link</button>
-        </form>
-        {message && <div className="forgot-success">{message}</div>}
-        {error && <div className="forgot-error">{error}</div>}
-        <div>
-          <Link to="/login" className="forgot-link">Back to Log In</Link>
         </div>
       </div>
     </div>
