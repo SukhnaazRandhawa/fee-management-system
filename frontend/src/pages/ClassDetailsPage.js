@@ -239,38 +239,34 @@ const ClassDetailsPage = () => {
                 Import Students
             </button>
             {showImportModal && (
-                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div style={{ background: 'white', padding: '2rem', borderRadius: 8, minWidth: 320 }}>
+                <div className="import-modal-overlay">
+                    <div className="import-modal-content">
                         <h3>Import Students from Previous Year</h3>
-                        <div style={{ marginBottom: '1rem' }}>
-                            <label>Select Previous Class: </label>
-                            <select value={prevClassId} onChange={e => { setPrevClassId(e.target.value); fetchPrevStudents(e.target.value); }}>
-                                <option value="">Select</option>
-                                {prevClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                            </select>
-                        </div>
-                        <div style={{ maxHeight: 200, overflowY: 'auto', marginBottom: '1rem' }}>
+                        <label>Select Previous Class:</label>
+                        <select value={prevClassId} onChange={e => { setPrevClassId(e.target.value); fetchPrevStudents(e.target.value); }}>
+                            <option value="">Select</option>
+                            {prevClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                        <ul>
                             {prevStudents.length === 0 ? <div>No students found.</div> : (
-                                <ul style={{ listStyle: 'none', padding: 0 }}>
-                                    {prevStudents.map(s => (
-                                        <li key={s.id}>
-                                            <label>
-                                                <input type="checkbox" value={s.id} checked={selectedStudents.includes(s.id)} onChange={e => {
-                                                    if (e.target.checked) setSelectedStudents([...selectedStudents, s.id]);
-                                                    else setSelectedStudents(selectedStudents.filter(id => id !== s.id));
-                                                }} />
-                                                {s.name} ({s.student_id})
-                                            </label>
-                                        </li>
-                                    ))}
-                                </ul>
+                                prevStudents.map(s => (
+                                    <li key={s.id}>
+                                        <label>
+                                            <input type="checkbox" value={s.id} checked={selectedStudents.includes(s.id)} onChange={e => {
+                                                if (e.target.checked) setSelectedStudents([...selectedStudents, s.id]);
+                                                else setSelectedStudents(selectedStudents.filter(id => id !== s.id));
+                                            }} />
+                                            {s.name} ({s.student_id})
+                                        </label>
+                                    </li>
+                                ))
                             )}
-                        </div>
-                        {importError && <div style={{ color: 'red' }}>{importError}</div>}
-                        {importSuccess && <div style={{ color: 'green' }}>{importSuccess}</div>}
-                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                            <button onClick={handleImport} disabled={importLoading || selectedStudents.length === 0} style={{ background: '#27ae60', color: 'white' }}>Done</button>
-                            <button onClick={() => setShowImportModal(false)} disabled={importLoading}>Cancel</button>
+                        </ul>
+                        {importError && <div className="import-modal-error">{importError}</div>}
+                        {importSuccess && <div className="import-modal-success">{importSuccess}</div>}
+                        <div className="import-modal-btn-row">
+                            <button className="import-modal-btn done" onClick={handleImport} disabled={importLoading || selectedStudents.length === 0}>Done</button>
+                            <button className="import-modal-btn cancel" onClick={() => setShowImportModal(false)} disabled={importLoading}>Cancel</button>
                         </div>
                     </div>
                 </div>

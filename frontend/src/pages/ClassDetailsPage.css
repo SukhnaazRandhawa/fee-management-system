@@ -136,3 +136,122 @@ td.partial {
         font-size: 0.95rem;
     }
 } 
+
+.import-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.import-modal-content {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(94,44,165,0.13);
+  padding: 2.2rem 2.5rem 2rem 2.5rem;
+  min-width: 340px;
+  max-width: 95vw;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.import-modal-content h3 {
+  color: #5E2CA5;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.import-modal-content label {
+  font-weight: 600;
+  color: #5E2CA5;
+  margin-bottom: 0.3rem;
+  margin-top: 1rem;
+  font-size: 1.08rem;
+}
+
+.import-modal-content select {
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #e0c3fc;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  margin-bottom: 0.7rem;
+  outline: none;
+  background: #f9f1ff;
+  transition: border 0.2s;
+}
+
+.import-modal-content select:focus {
+  border: 1.5px solid #5E2CA5;
+  background: #fff;
+}
+
+.import-modal-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 1rem 0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.import-modal-content li {
+  margin-bottom: 0.5rem;
+}
+
+.import-modal-content input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.import-modal-content .import-modal-btn-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.import-modal-content .import-modal-btn {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 0.9rem 0;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.import-modal-content .import-modal-btn.done {
+  background: #27ae60;
+  color: #fff;
+}
+.import-modal-content .import-modal-btn.done:disabled {
+  background: #b8eac7;
+  color: #fff;
+  cursor: not-allowed;
+}
+.import-modal-content .import-modal-btn.cancel {
+  background: #f72585;
+  color: #fff;
+}
+.import-modal-content .import-modal-btn.cancel:disabled {
+  background: #f9b3d1;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.import-modal-content .import-modal-error {
+  color: #f72585;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+.import-modal-content .import-modal-success {
+  color: #27ae60;
+  margin-bottom: 0.5rem;
+  text-align: center;
+} 
