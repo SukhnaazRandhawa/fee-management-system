@@ -75,7 +75,7 @@ const DashboardLayout = () => {
                 <div className="sidebar-logo">Billora</div>
                 <nav className="sidebar-nav">
                     <Link to="classes">Classes</Link>
-                    <Link to="amount">Amount</Link>
+                    <Link to="amount">Dashboard</Link>
                     <Link to="register">Register</Link>
                     <Link to="payfee">Pay Fee</Link>
                     <Link to="viewfeehistory">View Fee History</Link>
