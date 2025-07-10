@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './DashboardLayout.css';
@@ -12,6 +12,8 @@ const DashboardLayout = () => {
     const [message, setMessage] = React.useState('');
     const [showPopup, setShowPopup] = React.useState(false);
     const [currentSession, setCurrentSession] = useState('');
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef();
 
     useEffect(() => {
         const fetchSession = async () => {
@@ -54,29 +56,47 @@ const DashboardLayout = () => {
         setShowConfirm(false);
     };
 
+    // Close menu if clicked outside
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setMenuOpen(false);
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     return (
         <div>
-            <header>
-                <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#5E2CA5', marginBottom: '0.2rem' }}>
+            <header className="dashboard-header">
+                <div className="dashboard-header-content">
+                    <div className="dashboard-header-left"></div>
+                    <div className="dashboard-header-center">
+                        <span className="school-name">{user?.schoolName}</span>
+                    </div>
+                    <nav className="dashboard-header-nav">
+                        <Link to="classes">Classes</Link>
+                        <Link to="amount">Amount</Link>
+                        <Link to="register">Register</Link>
+                        <Link to="payfee">Pay Fee</Link>
+                        <Link to="viewfeehistory">View Fee History</Link>
+                        <div className="menu-trigger" onClick={() => setMenuOpen((v) => !v)}>
+                            <span className="vertical-dots">&#8942;</span>
+                        </div>
+                        {menuOpen && (
+                            <div className="menu-popup" ref={menuRef}>
+                                {role === 'principal' && (
+                                    <button onClick={() => { setShowConfirm(true); setMenuOpen(false); }}>Start New Session</button>
+                                )}
+                                <button onClick={handleLogout}>Log Out</button>
+                            </div>
+                        )}
+                    </nav>
+                </div>
+                <div className="dashboard-header-session">
                     Current Session: {currentSession || 'Loading...'}
                 </div>
-                <h2>{user?.schoolName}</h2>
-                <nav>
-                    <Link to="classes">Classes</Link>
-                    <Link to="amount">Amount</Link>
-                    <Link to="register">Register</Link>
-                    <Link to="payfee">Pay Fee</Link>
-                    <Link to="viewfeehistory">View Fee History</Link>
-                </nav>
-                {role === 'principal' && (
-                    <button style={{ marginRight: '1rem', background: '#e67e22', color: 'white' }}
-                        onClick={() => setShowConfirm(true)}
-                        disabled={loading}
-                    >
-                        Start New Session
-                    </button>
-                )}
-                <button onClick={handleLogout}>Log Out</button>
             </header>
             {showConfirm && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>

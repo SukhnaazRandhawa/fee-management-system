@@ -26,7 +26,7 @@ const EditClassModal = ({ isOpen, onClose, classData, onSave, error }) => {
     };
 
     return (
-        <div className="modal-backdrop">
+        <div className="modal-overlay">
             <div className="modal-content">
                 <h2>Edit Class</h2>
                 {error && <div style={{ color: 'red', marginBottom: '0.5rem' }}>{error}</div>}

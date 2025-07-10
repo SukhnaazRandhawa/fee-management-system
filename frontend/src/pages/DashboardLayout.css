@@ -36,3 +36,107 @@
   font-weight: bold;
   font-size: 1.2rem;
 }
+
+.dashboard-header {
+  background: #5E2CA5;
+  color: #fff;
+  padding: 0.7rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(94,44,165,0.08);
+}
+
+.dashboard-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.dashboard-header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.school-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.dashboard-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+}
+
+.dashboard-header-nav a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.08rem;
+  transition: color 0.2s;
+}
+.dashboard-header-nav a:hover {
+  color: #f72585;
+}
+
+.menu-trigger {
+  cursor: pointer;
+  margin-left: 1.2rem;
+  font-size: 1.7rem;
+  user-select: none;
+  display: flex;
+  align-items: center;
+}
+
+.vertical-dots {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.menu-popup {
+  position: absolute;
+  top: 2.5rem;
+  right: 0;
+  background: #fff;
+  color: #2d2d2d;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(94,44,165,0.15);
+  padding: 1rem 1.2rem;
+  min-width: 180px;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.menu-popup button {
+  background: none;
+  border: none;
+  color: #5E2CA5;
+  font-size: 1.08rem;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.menu-popup button:hover {
+  background: #f9f1ff;
+  color: #f72585;
+}
+
+.dashboard-header-session {
+  text-align: center;
+  color: #e0c3fc;
+  font-size: 1.05rem;
+  margin-top: 0.2rem;
+  letter-spacing: 0.5px;
+}

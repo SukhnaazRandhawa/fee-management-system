@@ -106,10 +106,10 @@ const ClassesView = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Classes</h2>
-        <button onClick={handleAddClassClick} style={{ marginRight: '1rem' }}>Add Class</button>
+    <div className="classes-bg">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h2 style={{ color: '#5E2CA5', fontWeight: 700, fontSize: '2rem' }}>Classes</h2>
+        <button className="add-class-btn" onClick={handleAddClassClick}>Add Class</button>
       </div>
       <div className="class-grid">
         {classes.map((c) => (

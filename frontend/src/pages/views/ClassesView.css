@@ -4,19 +4,33 @@ body, .classes-bg {
   min-height: 100vh;
 }
 
+/* Optional: Add a background SVG blob or gradient */
+.classes-bg::before {
+  content: '';
+  position: absolute;
+  left: -120px;
+  top: 80px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle at 40% 40%, #e0c3fc 0%, #f9f1ff 100%);
+  opacity: 0.25;
+  z-index: 0;
+  border-radius: 50%;
+}
+
 /* Class Avatar/Icon */
 .class-avatar {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: linear-gradient(135deg, #5e2ca5 60%, #f72585 100%);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.7rem;
   box-shadow: 0 2px 8px rgba(94,44,165,0.10);
   letter-spacing: 1px;
 }
@@ -42,7 +56,7 @@ body, .classes-bg {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 2000; /* Make sure this is high! */
   animation: modal-fade-in 0.25s;
 }
 
@@ -77,13 +91,14 @@ body, .classes-bg {
   background: #f72585;
   color: #fff;
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   border: none;
   border-radius: 8px;
-  padding: 0.7rem 1.5rem;
+  padding: 0.9rem 2rem;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(247,37,133,0.08);
   transition: background 0.2s, transform 0.2s;
+  margin-right: 1rem;
 }
 .add-class-btn:hover {
   background: #d61e6b;
@@ -94,39 +109,44 @@ body, .classes-bg {
 .class-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.5rem;
-  padding: 1.5rem 0;
+  gap: 2rem;
+  padding: 2.5rem 0;
+  z-index: 1;
+  position: relative;
+  justify-content: center;      /* Add this line */
+  max-width: 1200px;            /* Optional: limits grid width */
+  margin: 0 auto;               /* Optional: centers the grid */
 }
 
 .class-card {
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(94,44,165,0.10);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(94,44,165,0.10);
   border: 1.5px solid #f9f1ff;
-  padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
   cursor: pointer;
   transition: box-shadow 0.2s, border 0.2s, transform 0.2s;
-  position: relative;
   align-items: flex-start;
+  position: relative;
 }
 .class-card:hover {
-  box-shadow: 0 6px 24px rgba(94,44,165,0.18);
+  box-shadow: 0 8px 32px rgba(94,44,165,0.18);
   border: 1.5px solid #f72585;
-  transform: translateY(-3px) scale(1.02);
+  transform: translateY(-4px) scale(1.03);
 }
 .class-card h3 {
   color: #5E2CA5;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 0.2rem 0;
 }
 .class-card p {
   color: #2d2d2d;
   margin: 0.1rem 0;
-  font-size: 1.05rem;
+  font-size: 1.08rem;
 }
 .class-card button {
   align-self: flex-end;
@@ -144,6 +164,84 @@ body, .classes-bg {
 .class-card button:hover {
   background: #f72585;
   color: #fff;
+}
+
+/* Modal Content Improvements */
+.modal-content {
+  background: #fff;
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(94,44,165,0.13);
+  min-width: 350px;
+  max-width: 95vw;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.modal-content h2 {
+  color: #5E2CA5;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.modal-content label {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: #5E2CA5;
+  margin-top: 1rem;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="number"] {
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #e0c3fc;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  margin-bottom: 0.7rem;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.modal-content input:focus {
+  border: 1.5px solid #5E2CA5;
+}
+
+.modal-content button {
+  background: #f72585;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  padding: 0.9rem 2rem;
+  margin-top: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(247,37,133,0.08);
+  transition: background 0.2s, transform 0.2s;
+  width: 100%;
+}
+
+.modal-content button:hover {
+  background: #d61e6b;
+  transform: translateY(-2px) scale(1.03);
+}
+
+.modal-content button + button {
+  background: #e0c3fc;
+  color: #5E2CA5;
+  margin-top: 0.7rem;
+}
+
+@media (max-width: 600px) {
+  .modal-content {
+    padding: 1.2rem 0.5rem;
+    min-width: 90vw;
+    width: 98vw;
+  }
 }
 
 /* Responsive */
