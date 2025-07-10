@@ -140,3 +140,117 @@
   margin-top: 0.2rem;
   letter-spacing: 0.5px;
 }
+
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  background: #f9f1ff;
+}
+
+.sidebar {
+  width: 260px;
+  background: #5E2CA5;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 2rem 0 2rem 0;
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar::before {
+  content: '';
+  position: absolute;
+  left: -120px;
+  top: 80px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle at 40% 40%, #e0c3fc 0%, #5E2CA5 100%);
+  opacity: 0.25;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.sidebar-logo {
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  letter-spacing: 1px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-top: 1rem;
+}
+
+.sidebar-nav a {
+  color: #fff;
+  background: transparent;
+  text-decoration: none;
+  font-size: 1.15rem;
+  font-weight: 600;
+  padding: 1.1rem 0;
+  text-align: center;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+  margin: 0 1.5rem;
+}
+
+.sidebar-nav a:hover {
+  background: #f72585;
+  color: #fff;
+}
+
+.main-content {
+  flex: 1;
+  background: #fff;
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+  margin: 1.5rem 1.5rem 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 32px rgba(94,44,165,0.10);
+  min-width: 0;
+}
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 2rem 2.5rem 1.5rem 2.5rem;
+  border-bottom: 1.5px solid #e0c3fc;
+}
+
+.school-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2d2d2d;
+  margin-bottom: 0.3rem;
+}
+
+.session-label {
+  color: #5E2CA5;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.main-menu {
+  font-size: 2rem;
+  color: #5E2CA5;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.main-body {
+  padding: 2.5rem;
+  flex: 1;
+  overflow-y: auto;
+}

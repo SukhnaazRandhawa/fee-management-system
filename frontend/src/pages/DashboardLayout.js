@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -18,10 +17,11 @@ const DashboardLayout = () => {
     useEffect(() => {
         const fetchSession = async () => {
             try {
-                const res = await axios.get('http://localhost:5050/api/dashboard/session', {
+                const res = await fetch('http://localhost:5050/api/dashboard/session', {
                     headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
                 });
-                setCurrentSession(res.data.currentSession);
+                const data = await res.json();
+                setCurrentSession(data.currentSession);
             } catch {
                 setCurrentSession('');
             }
@@ -38,18 +38,20 @@ const DashboardLayout = () => {
         setLoading(true);
         setMessage('');
         try {
-            await axios.post('http://localhost:5050/api/dashboard/rollover', {}, {
+            await fetch('http://localhost:5050/api/dashboard/rollover', {
+                method: 'POST',
                 headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
             });
             setMessage('New session started successfully!');
             setShowPopup(true);
             // Refetch session after rollover
-            const res = await axios.get('http://localhost:5050/api/dashboard/session', {
+            const res = await fetch('http://localhost:5050/api/dashboard/session', {
                 headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
             });
-            setCurrentSession(res.data.currentSession);
+            const data = await res.json();
+            setCurrentSession(data.currentSession);
         } catch (err) {
-            setMessage(err.response?.data?.error || 'Failed to start new session.');
+            setMessage('Failed to start new session.');
             setShowPopup(true);
         }
         setLoading(false);
@@ -68,22 +70,25 @@ const DashboardLayout = () => {
     }, []);
 
     return (
-        <div>
-            <header className="dashboard-header">
-                <div className="dashboard-header-content">
-                    <div className="dashboard-header-left"></div>
-                    <div className="dashboard-header-center">
-                        <span className="school-name">{user?.schoolName}</span>
+        <div className="dashboard-container">
+            <aside className="sidebar">
+                <div className="sidebar-logo">Billora</div>
+                <nav className="sidebar-nav">
+                    <Link to="classes">Classes</Link>
+                    <Link to="amount">Amount</Link>
+                    <Link to="register">Register</Link>
+                    <Link to="payfee">Pay Fee</Link>
+                    <Link to="viewfeehistory">View Fee History</Link>
+                </nav>
+            </aside>
+            <main className="main-content">
+                <header className="main-header">
+                    <div>
+                        <h2 className="school-title">{user?.schoolName}</h2>
+                        <div className="session-label">Current Session : {currentSession || 'Loading...'}</div>
                     </div>
-                    <nav className="dashboard-header-nav">
-                        <Link to="classes">Classes</Link>
-                        <Link to="amount">Amount</Link>
-                        <Link to="register">Register</Link>
-                        <Link to="payfee">Pay Fee</Link>
-                        <Link to="viewfeehistory">View Fee History</Link>
-                        <div className="menu-trigger" onClick={() => setMenuOpen((v) => !v)}>
-                            <span className="vertical-dots">&#8942;</span>
-                        </div>
+                    <div className="main-menu" onClick={() => setMenuOpen((v) => !v)}>
+                        <span className="vertical-dots">&#8942;</span>
                         {menuOpen && (
                             <div className="menu-popup" ref={menuRef}>
                                 {role === 'principal' && (
@@ -92,12 +97,12 @@ const DashboardLayout = () => {
                                 <button onClick={handleLogout}>Log Out</button>
                             </div>
                         )}
-                    </nav>
+                    </div>
+                </header>
+                <div className="main-body">
+                    <Outlet />
                 </div>
-                <div className="dashboard-header-session">
-                    Current Session: {currentSession || 'Loading...'}
-                </div>
-            </header>
+            </main>
             {showConfirm && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
                     <div style={{ background: 'white', padding: '2rem', borderRadius: 8, minWidth: 320 }}>
@@ -120,10 +125,6 @@ const DashboardLayout = () => {
                     </div>
                 </div>
             )}
-            <hr />
-            <main>
-                <Outlet /> {/* Nested dashboard content will be rendered here */}
-            </main>
         </div>
     );
 };
