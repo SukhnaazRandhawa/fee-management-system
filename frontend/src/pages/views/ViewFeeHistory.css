@@ -1,0 +1,128 @@
+.view-fee-history-bg {
+  min-height: 100vh;
+  background: #f9f1ff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2.5rem 0 0 0;
+}
+
+.view-fee-history-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(94,44,165,0.10);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto 2rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.view-fee-history-card h2 {
+  color: #5E2CA5;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.view-fee-history-form {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  justify-content: center;
+}
+
+.view-fee-history-card select {
+  padding: 0.9rem 1rem;
+  border-radius: 8px;
+  border: 1.5px solid #e0c3fc;
+  font-size: 1.08rem;
+  outline: none;
+  background: #f9f1ff;
+  transition: border 0.2s;
+  box-sizing: border-box;
+}
+.view-fee-history-card select:focus {
+  border: 1.5px solid #5e2ca5;
+  background: #fff;
+}
+
+.view-fee-history-card button {
+  background: #f72585;
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  padding: 0.9rem 2rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  box-shadow: 0 2px 8px rgba(247,37,133,0.08);
+}
+.view-fee-history-card button:disabled {
+  background: #e0c3fc;
+  color: #aaa;
+  cursor: not-allowed;
+}
+.view-fee-history-card button:hover:not(:disabled) {
+  background: #d61e6b;
+  transform: translateY(-2px) scale(1.03);
+}
+
+.view-fee-history-table-container {
+  overflow-x: auto;
+  margin-top: 1.5rem;
+}
+
+.view-fee-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+  font-size: 1rem;
+}
+
+.view-fee-history-table th, .view-fee-history-table td {
+  border: 1px solid #e0c3fc;
+  padding: 0.75rem 0.7rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.view-fee-history-table thead {
+  background-color: #f9f1ff;
+}
+
+.view-fee-history-table th {
+  font-weight: 700;
+  color: #5E2CA5;
+  font-size: 1.05rem;
+  border-bottom: 2px solid #e0c3fc;
+}
+
+.view-fee-history-table tbody tr:nth-child(even) {
+  background-color: #faf6ff;
+}
+
+@media (max-width: 900px) {
+  .view-fee-history-bg {
+    padding: 1.2rem 0.5rem 0 0.5rem;
+  }
+  .view-fee-history-card {
+    padding: 1.2rem 0.5rem;
+    min-width: 0;
+    max-width: 98vw;
+  }
+  .view-fee-history-table-container {
+    padding: 0.5rem 0;
+  }
+  .view-fee-history-form {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+} 
