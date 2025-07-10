@@ -4,8 +4,9 @@
   align-items: flex-start;      /* Align to top */
   justify-content: flex-start;  /* Align to left */
   background: #f9f1ff;
-  padding: 1.2rem 0 0 1.2rem;   /* Less top/left padding */
+  padding: 1.2rem 0 0 1.2rem;
   gap: 2.5rem;
+  position: relative; /* Needed for absolute positioning of the illustration */
 }
 
 .register-view {
@@ -113,10 +114,13 @@
 }
 
 .register-illustration {
-  width: 1000px;                 /* Make the illustration even bigger */
+  width: 1000px;
   max-width: 65vw;
   height: auto;
-  align-self: flex-end;
+  z-index: 1;
+  margin-top: 0;
+  margin-bottom: 0;
+  /* Remove align-self, margin-top, etc. */
 }
 
 @media (min-width: 900px) {
@@ -135,7 +139,16 @@
     width: 700px;
     max-width: 48vw;
     height: auto;
-    align-self: flex-end;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 1100px) {
+  .register-illustration {
+    width: 350px;
+    max-width: 60vw;
+    right: 1rem;
+    bottom: 1rem;
   }
 }
 
@@ -156,8 +169,13 @@
     font-size: 1.2rem;
   }
   .register-illustration {
+    position: static;
     width: 90vw;
     max-width: 98vw;
     margin-top: 2rem;
+    margin-bottom: 0;
+    right: auto;
+    bottom: auto;
+    display: block;
   }
 } 
