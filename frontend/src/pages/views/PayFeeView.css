@@ -8,6 +8,19 @@
     padding: 2.5rem 0 0 0;
 }
 
+.pay-fee-bg-card {
+    background: #f3e6fa;
+    border-radius: 18px;
+    box-shadow: 0 4px 32px rgba(94,44,165,0.08);
+    padding: 2.5rem 2.5rem 2rem 2.5rem;
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto 2rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
 .pay-fee-card {
     background: #fff;
     border-radius: 18px;
@@ -141,6 +154,11 @@
 @media (max-width: 900px) {
     .pay-fee-bg {
         padding: 1.2rem 0.5rem 0 0.5rem;
+    }
+    .pay-fee-bg-card {
+        padding: 1.2rem 0.5rem;
+        min-width: 0;
+        max-width: 98vw;
     }
     .pay-fee-card {
         padding: 1.2rem 0.5rem;
