@@ -1,8 +1,8 @@
 .class-details-view {
-    padding: 2.5rem 2.5rem 2rem 2.5rem;
+    padding: 1.2rem 0 1.2rem 0;   /* Remove left/right padding */
     text-align: left;
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: 100%;              /* Use full width of main content */
+    margin: 0;                    /* Remove auto-centering */
 }
 
 .class-details-view h2 {
