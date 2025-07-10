@@ -1,13 +1,32 @@
 /* Billora SignUp Page Styles */
 .signup-bg {
+  position: relative;
   min-height: 100vh;
   background: #F9F1FF;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
-
+.side-illustration {
+  position: absolute;
+  bottom: 0;
+  width: 720px;      /* Increased from 420px */
+  max-width: 58vw;   /* Increased from 40vw */
+  height: auto;
+  z-index: 1;
+  opacity: 0.99;
+  /* Remove transform: translateY(-50%); */
+}
+.side-illustration.left {
+  left: -40px; /* negative value to nudge it inwards */
+}
+.side-illustration.right {
+  right: -40px;
+}
 .signup-card {
+  position: relative;
+  z-index: 2;
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(94,44,165,0.10);
@@ -98,7 +117,10 @@
   display: inline-block;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
+  .side-illustration {
+    display: none;
+  }
   .signup-card {
     min-width: 90vw;
     max-width: 98vw;

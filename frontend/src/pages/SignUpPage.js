@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import countryList from 'react-select-country-list';
+import EducationSVG from '../assets/education.svg';
+import SchoolSVG from '../assets/school.svg';
 import authService from '../services/authService';
 import './SignUpPage.css';
 
@@ -170,6 +172,7 @@ const SignUpPage = () => {
 
   return (
     <div className="signup-bg">
+      <img src={SchoolSVG} alt="School illustration" className="side-illustration left" />
       <div className="signup-card">
         <BilloraLogo />
         <div className="signup-stepper">
@@ -309,6 +312,7 @@ const SignUpPage = () => {
           </p>
         </div>
       </div>
+      <img src={EducationSVG} alt="Education illustration" className="side-illustration right" />
     </div>
   );
 };
