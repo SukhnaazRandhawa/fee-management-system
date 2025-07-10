@@ -168,8 +168,8 @@
   top: 80px;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle at 40% 40%, #e0c3fc 0%, #5E2CA5 100%);
-  opacity: 0.25;
+  background: radial-gradient(circle at 40% 40%, #e0c3fc 0%, #fff 100%);
+  opacity: 0.13;
   z-index: 0;
   border-radius: 50%;
   pointer-events: none;
