@@ -1,25 +1,27 @@
 .register-page-bg {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;      /* Align to top */
+  justify-content: flex-start;  /* Align to left */
   background: #f9f1ff;
-  padding: 2rem 0;
+  padding: 1.2rem 0 0 1.2rem;   /* Less top/left padding */
+  gap: 2.5rem;
 }
 
 .register-view {
   max-width: 480px;
   width: 100%;
   min-height: 600px;
-  margin: 0;
-  padding: 3rem 2.5rem 2.5rem 2.5rem;
+  margin-top: 0;
+  margin-left: 0;
+  padding: 2.2rem 2rem 2rem 2rem;
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 4px 24px 0 rgba(94,44,165,0.10);
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .register-view h2 {
@@ -110,29 +112,40 @@
     text-align: center;
 }
 
+.register-illustration {
+  width: 1000px;                 /* Make the illustration even bigger */
+  max-width: 65vw;
+  height: auto;
+  align-self: flex-end;
+}
+
 @media (min-width: 900px) {
   .register-page-bg {
     flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 3rem;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 2.5rem;
+    padding: 1.2rem 0 0 1.2rem;
   }
   .register-view {
     min-width: 420px;
     max-width: 480px;
   }
   .register-illustration {
-    width: 420px;
-    max-width: 40vw;
+    width: 700px;
+    max-width: 48vw;
     height: auto;
     align-self: flex-end;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   .register-page-bg {
     flex-direction: column;
-    padding: 1.2rem 0.5rem;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1.2rem 0.5rem 0 0.5rem;
+    gap: 1.5rem;
   }
   .register-view {
     padding: 1.2rem 0.5rem;
