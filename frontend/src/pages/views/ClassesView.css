@@ -174,18 +174,19 @@ body, .classes-bg {
   box-shadow: 0 8px 32px rgba(94,44,165,0.13);
   min-width: 350px;
   max-width: 95vw;
-  width: 500px;
+  width: 400px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
 }
 
-.modal-content h2 {
+.modal-content h3, .modal-content h2 {
   color: #5E2CA5;
-  font-size: 2rem;
+  font-size: 1.7rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
   text-align: center;
+  letter-spacing: 0.5px;
 }
 
 .modal-content label {
@@ -193,6 +194,7 @@ body, .classes-bg {
   margin-bottom: 0.3rem;
   color: #5E2CA5;
   margin-top: 1rem;
+  font-size: 1.08rem;
 }
 
 .modal-content input[type="text"],
@@ -204,10 +206,12 @@ body, .classes-bg {
   margin-bottom: 0.7rem;
   outline: none;
   transition: border 0.2s;
+  background: #f9f1ff;
 }
 
 .modal-content input:focus {
   border: 1.5px solid #5E2CA5;
+  background: #fff;
 }
 
 .modal-content button {
@@ -234,6 +238,12 @@ body, .classes-bg {
   background: #e0c3fc;
   color: #5E2CA5;
   margin-top: 0.7rem;
+}
+
+.modal-content form > div {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.7rem;
 }
 
 @media (max-width: 600px) {
