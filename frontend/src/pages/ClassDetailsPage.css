@@ -255,3 +255,31 @@ td.partial {
   margin-bottom: 0.5rem;
   text-align: center;
 } 
+
+.edit-student-form label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #5E2CA5;
+  font-size: 1.08rem;
+}
+
+.edit-student-form input {
+  margin-top: 0.3rem;
+  margin-bottom: 0.2rem;
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #e0c3fc;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  width: 100%;
+  outline: none;
+  background: #f9f1ff;
+  transition: border 0.2s;
+}
+
+.edit-student-form input:focus {
+  border: 1.5px solid #5E2CA5;
+  background: #fff;
+} 

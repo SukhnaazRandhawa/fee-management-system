@@ -319,13 +319,27 @@ const ClassDetailsPage = () => {
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h3>Edit Student</h3>
-                        <form onSubmit={handleEditSubmit}>
-                            <input name="name" value={editForm.name || ''} onChange={handleEditFormChange} placeholder="Name" />
-                            <input name="father_name" value={editForm.father_name || ''} onChange={handleEditFormChange} placeholder="Father's Name" />
-                            <input name="mother_name" value={editForm.mother_name || ''} onChange={handleEditFormChange} placeholder="Mother's Name" />
-                            <input name="email" value={editForm.email || ''} onChange={handleEditFormChange} placeholder="Email" />
-                            <input name="phone" value={editForm.phone || ''} onChange={handleEditFormChange} placeholder="Phone" />
-                            {/* Add other fields as needed */}
+                        <form onSubmit={handleEditSubmit} className="edit-student-form">
+                            <label>
+                                Name
+                                <input name="name" value={editForm.name || ''} onChange={handleEditFormChange} placeholder="Name" />
+                            </label>
+                            <label>
+                                Father's Name
+                                <input name="father_name" value={editForm.father_name || ''} onChange={handleEditFormChange} placeholder="Father's Name" />
+                            </label>
+                            <label>
+                                Mother's Name
+                                <input name="mother_name" value={editForm.mother_name || ''} onChange={handleEditFormChange} placeholder="Mother's Name" />
+                            </label>
+                            <label>
+                                Email
+                                <input name="email" value={editForm.email || ''} onChange={handleEditFormChange} placeholder="Email" />
+                            </label>
+                            <label>
+                                Phone
+                                <input name="phone" value={editForm.phone || ''} onChange={handleEditFormChange} placeholder="Phone" />
+                            </label>
                             {editError && <div style={{ color: 'red' }}>{editError}</div>}
                             <button type="submit">Save</button>
                             <button type="button" onClick={() => setShowEditModal(false)}>Cancel</button>
