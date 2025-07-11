@@ -79,7 +79,7 @@ const DashboardLayout = () => {
     return (
         <div className="dashboard-container">
             <aside className="sidebar">
-                <div className="sidebar-logo">Billora</div>
+                <Link to="/" className="sidebar-logo">Billora</Link>
                 <nav className="sidebar-nav">
                     <Link to="classes">Classes</Link>
                     <Link to="amount">Dashboard</Link>
