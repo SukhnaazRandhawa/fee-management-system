@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('../db');
 const { protect } = require('../middleware/authMiddleware');
 const requirePrincipal = require('../middleware/requirePrincipal');
+const { getCurrentAcademicYear } = require('../utils/sessionUtils');
 
 const router = express.Router();
 
@@ -65,6 +66,7 @@ router.get('/summary', protect, async (req, res) => {
 
         // 3b. Current academic year's collection (April to March)
         const currentDate = new Date();
+        //const currentDate = new Date('2026-04-02T10:00:00Z');
         const currentMonth = currentDate.getMonth(); // 0-11 (Jan-Dec)
         const academicSessionStartYear = currentMonth < 3 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
         const academicSessionEndYear = academicSessionStartYear + 1;
@@ -184,22 +186,27 @@ router.get('/summary', protect, async (req, res) => {
     }
 });
 
-// Utility to get current academic year (April-March)
-function getCurrentAcademicYear() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth(); // 0=Jan, 3=Apr
-    const startYear = month < 3 ? year - 1 : year;
-    const endYear = startYear + 1;
-    return `${startYear}-${endYear}`;
-}
-
 // GET /api/dashboard/session - get current session
 router.get('/session', protect, async (req, res) => {
     try {
-        const sessionResult = await db.query('SELECT academic_year FROM sessions WHERE is_current = TRUE LIMIT 1');
-        if (sessionResult.rows.length > 0) {
-            res.json({ currentSession: sessionResult.rows[0].academic_year });
+        const schoolId = req.user.schoolId;
+        
+        // Check if we need to auto-start a new session first
+        const currentSessionResult = await db.query('SELECT academic_year FROM sessions WHERE school_id = $1 AND is_current = TRUE', [schoolId]);
+        if (currentSessionResult.rows.length > 0) {
+            const currentSession = currentSessionResult.rows[0].academic_year;
+            
+            // Check if we should auto-start a new session (May onwards)
+            const { shouldAutoStartNewSession, autoStartNewSession } = require('../utils/sessionUtils');
+            if (shouldAutoStartNewSession(currentSession)) {
+                await autoStartNewSession(schoolId, currentSession);
+                // Get the new session
+                const newSessionResult = await db.query('SELECT academic_year FROM sessions WHERE school_id = $1 AND is_current = TRUE', [schoolId]);
+                res.json({ currentSession: newSessionResult.rows[0].academic_year });
+                return;
+            }
+            
+            res.json({ currentSession: currentSession });
         } else {
             // Fallback: calculate from date
             res.json({ currentSession: getCurrentAcademicYear() });
@@ -217,9 +224,10 @@ router.post('/rollover', protect, requirePrincipal, async (req, res) => {
     try {
         const schoolId = req.user.schoolId;
         const currentDate = new Date();
+        //const currentDate = new Date('2026-04-02T10:00:00Z');
 
-        // 1. Get the current session from the sessions table
-        const sessionResult = await db.query('SELECT academic_year FROM sessions WHERE is_current = TRUE LIMIT 1');
+        // 1. Get the current session from the sessions table for this school
+        const sessionResult = await db.query('SELECT academic_year FROM sessions WHERE school_id = $1 AND is_current = TRUE LIMIT 1', [schoolId]);
         let currentSession;
         if (sessionResult.rows.length > 0) {
             currentSession = sessionResult.rows[0].academic_year;
@@ -240,14 +248,15 @@ router.post('/rollover', protect, requirePrincipal, async (req, res) => {
 
         // 3. Only allow rollover if current date is April 1st or later of the next session's start year
         const minRolloverDate = new Date(nextSessionStartYear, 3, 1); // April 1st of next session start year
+        console.log('currentDate:', currentDate, 'minRolloverDate:', minRolloverDate, 'allowRollover:', currentDate >= minRolloverDate);
         if (currentDate < minRolloverDate) {
             return res.status(400).json({ error: `Cannot start ${nextSession} session before April ${nextSessionStartYear}.` });
         }
 
-        // 4. Mark all previous sessions as not current
-        await db.query('UPDATE sessions SET is_current = FALSE');
+        // 4. Mark all previous sessions for this school as not current
+        await db.query('UPDATE sessions SET is_current = FALSE WHERE school_id = $1', [schoolId]);
         // 5. Insert new session if not exists, set as current
-        await db.query('INSERT INTO sessions (academic_year, is_current) VALUES ($1, TRUE) ON CONFLICT (academic_year) DO UPDATE SET is_current = TRUE', [nextSession]);
+        await db.query('INSERT INTO sessions (academic_year, is_current, school_id) VALUES ($1, TRUE, $2) ON CONFLICT (academic_year, school_id) DO UPDATE SET is_current = TRUE', [nextSession, schoolId]);
 
         // 6. Get all active students for this school
         const studentsResult = await db.query(

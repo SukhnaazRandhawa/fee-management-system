@@ -1,9 +1,10 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const db = require('../db');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const db = require('../db');
 const sendEmail = require('../utils/sendEmail');
+const { initializeSessionsIfEmpty } = require('../utils/sessionUtils');
 
 const router = express.Router();
 
@@ -80,6 +81,9 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
+    // Initialize sessions table if empty (for first-time setup)
+    await initializeSessionsIfEmpty(school.id);
+
     // Generate JWT (include role)
     const token = jwt.sign(
       { schoolId: school.id, name: school.name, role: school.role },
@@ -113,6 +117,10 @@ router.post('/user-login', async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
+    
+    // Initialize sessions table if empty (for first-time setup)
+    await initializeSessionsIfEmpty(user.school_id);
+    
     // Get school name for display
     const schoolResult = await db.query('SELECT name FROM schools WHERE id = $1', [user.school_id]);
     const schoolName = schoolResult.rows.length > 0 ? schoolResult.rows[0].name : '';

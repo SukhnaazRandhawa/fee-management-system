@@ -38,18 +38,25 @@ const DashboardLayout = () => {
         setLoading(true);
         setMessage('');
         try {
-            await fetch('http://localhost:5050/api/dashboard/rollover', {
+            const res = await fetch('http://localhost:5050/api/dashboard/rollover', {
                 method: 'POST',
                 headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
             });
-            setMessage('New session started successfully!');
-            setShowPopup(true);
-            // Refetch session after rollover
-            const res = await fetch('http://localhost:5050/api/dashboard/session', {
-                headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
-            });
             const data = await res.json();
-            setCurrentSession(data.currentSession);
+            if (!res.ok) {
+                // Show backend error message
+                setMessage(data.error || data.message || 'Failed to start new session.');
+                setShowPopup(true);
+            } else {
+                setMessage('New session started successfully!');
+                setShowPopup(true);
+                // Refetch session after rollover
+                const sessionRes = await fetch('http://localhost:5050/api/dashboard/session', {
+                    headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
+                });
+                const sessionData = await sessionRes.json();
+                setCurrentSession(sessionData.currentSession);
+            }
         } catch (err) {
             setMessage('Failed to start new session.');
             setShowPopup(true);

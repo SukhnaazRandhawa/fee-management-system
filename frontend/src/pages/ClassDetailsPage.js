@@ -148,6 +148,7 @@ const ClassDetailsPage = () => {
 
     // Fetch students from selected previous class
     const fetchPrevStudents = async (classId) => {
+        console.log('Fetching previous students for classId:', classId);
         setPrevStudents([]);
         setSelectedStudents([]);
         setImportError('');
@@ -160,9 +161,11 @@ const ClassDetailsPage = () => {
             const prevSessionStartYear = currentMonth < 3 ? currentDate.getFullYear() - 2 : currentDate.getFullYear() - 1;
             const prevSessionEndYear = prevSessionStartYear + 1;
             const prevAcademicYear = `${prevSessionStartYear}-${prevSessionEndYear}`;
+            console.log('Sending request for year:', prevAcademicYear);
             const res = await classService.getFeeHistory(classId, prevAcademicYear);
             setPrevStudents(res.data.students);
-        } catch {
+        } catch (err) {
+            console.error('Error fetching previous students:', err);
             setPrevStudents([]);
         }
     };
