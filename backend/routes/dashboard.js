@@ -248,7 +248,7 @@ router.post('/rollover', protect, requirePrincipal, async (req, res) => {
 
         // 3. Only allow rollover if current date is April 1st or later of the next session's start year
         const minRolloverDate = new Date(nextSessionStartYear, 3, 1); // April 1st of next session start year
-        console.log('currentDate:', currentDate, 'minRolloverDate:', minRolloverDate, 'allowRollover:', currentDate >= minRolloverDate);
+        //console.log('currentDate:', currentDate, 'minRolloverDate:', minRolloverDate, 'allowRollover:', currentDate >= minRolloverDate);
         if (currentDate < minRolloverDate) {
             return res.status(400).json({ error: `Cannot start ${nextSession} session before April ${nextSessionStartYear}.` });
         }

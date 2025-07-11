@@ -126,9 +126,17 @@ const DashboardLayout = () => {
                 <div className="popup-overlay">
                     <div className="popup-content">
                         <button className="popup-close" onClick={() => { setShowPopup(false); setMessage(''); }}>×</button>
-                        <div className={message.includes('success') ? 'popup-success' : 'popup-error'}>
-                            {message}
-                        </div>
+                        {message.includes('success') ? (
+                            <div className="popup-success">
+                                <span className="icon">✔️</span>
+                                {message}
+                            </div>
+                        ) : (
+                            <div className="popup-error">
+                                <span className="icon">❌</span>
+                                {message}
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
