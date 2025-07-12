@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5050/api/students/';
+const API_URL = process.env.REACT_APP_API_URL + '/students/';
 
 const getAuthHeader = () => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -24,15 +24,11 @@ const getStudentsByClass = (classId) => {
 };
 
 const updateStudent = (id, data) => {
-    return axios.put(`http://localhost:5050/api/students/${id}`, data, {
-        headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
-    });
+    return axios.put(API_URL + id, data, { headers: getAuthHeader() });
 };
 
 const deleteStudent = (id) => {
-    return axios.delete(`http://localhost:5050/api/students/${id}`, {
-        headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
-    });
+    return axios.delete(API_URL + id, { headers: getAuthHeader() });
 };
 
 const studentService = {

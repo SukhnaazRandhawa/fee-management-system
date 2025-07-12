@@ -127,8 +127,8 @@ const ClassDetailsPage = () => {
         setImportError('');
         setImportSuccess('');
         try {
-            // Get current session from backend
-            const sessionRes = await fetch('http://localhost:5050/api/dashboard/session', {
+            const apiUrl = process.env.REACT_APP_API_URL;
+            const sessionRes = await fetch(`${apiUrl}/dashboard/session`, {
                 headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
             });
             const sessionData = await sessionRes.json();

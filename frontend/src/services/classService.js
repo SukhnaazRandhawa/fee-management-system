@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5050/api/classes/';
-//const API_URL = '/api/classes/';
+const API_URL = process.env.REACT_APP_API_URL + '/classes/';
 
 // We need a function to get the token from localStorage
 const getAuthHeader = () => {
@@ -42,11 +41,11 @@ const importStudents = (classId, importData) => {
 };
 
 const getAllClassesForHistory = () => {
-    return axios.get('http://localhost:5050/api/classes/all-for-history', { headers: getAuthHeader() });
+    return axios.get(API_URL + 'all-for-history', { headers: getAuthHeader() });
 };
 
 const getArchivedClassesForYear = (year) => {
-    return axios.get(`http://localhost:5050/api/classes/archived-for-year?year=${year}`, { headers: getAuthHeader() });
+    return axios.get(API_URL + `archived-for-year?year=${year}`, { headers: getAuthHeader() });
 };
 
 const classService = {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5050/api/auth/';
+const API_URL = process.env.REACT_APP_API_URL + '/auth/';
 
 const register = (name, school_email, principal_email, location, numClasses, principal_password, staff_password, country) => {
   return axios.post(API_URL + 'register', {
@@ -11,7 +11,7 @@ const register = (name, school_email, principal_email, location, numClasses, pri
     numClasses,
     principal_password,
     staff_password,
-    country, // <-- add this line
+    country,
   });
 };
 
@@ -35,7 +35,7 @@ const resetPassword = (token, password) => {
 };
 
 const userLogin = (email, password) => {
-  return axios.post('http://localhost:5050/api/auth/user-login', { email, password });
+  return axios.post(API_URL + 'user-login', { email, password });
 };
 
 const authService = {

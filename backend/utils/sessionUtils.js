@@ -39,7 +39,7 @@ async function initializeSessionsIfEmpty(schoolId) {
             // Initialize with current academic year for this school
             const currentAcademicYear = getCurrentAcademicYear();
             await db.query('INSERT INTO sessions (academic_year, is_current, school_id) VALUES ($1, TRUE, $2)', [currentAcademicYear, schoolId]);
-            console.log(`Sessions table initialized for school ${schoolId} with current academic year: ${currentAcademicYear}`);
+            // console.log(`Sessions table initialized for school ${schoolId} with current academic year: ${currentAcademicYear}`);
         } else {
             // Check if we need to auto-start a new session (May onwards)
             const currentSessionResult = await db.query('SELECT academic_year FROM sessions WHERE school_id = $1 AND is_current = TRUE', [schoolId]);
