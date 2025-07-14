@@ -7,7 +7,6 @@ const app = express();
 // Middleware
 app.use(cors({
   origin: [
-    'http://localhost:3000',
     'https://billorafrontend.vercel.app' // replace with your actual Vercel domain if different
   ],
   credentials: true
