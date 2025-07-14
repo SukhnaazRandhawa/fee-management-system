@@ -6,7 +6,11 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000' // Allow requests from our React app
+  origin: [
+    'http://localhost:3000',
+    'https://billorafrontend.vercel.app' // replace with your actual Vercel domain if different
+  ],
+  credentials: true
 }));
 app.use(express.json()); // for parsing application/json
 
