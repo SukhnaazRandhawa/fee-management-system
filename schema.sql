@@ -59,4 +59,16 @@ CREATE TABLE payments (
         FOREIGN KEY(student_id)
         REFERENCES students(id)
         ON DELETE CASCADE
-); 
+);
+
+--Table for Users 
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    school_id INTEGER,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    reset_password_token TEXT,
+    reset_password_expires TIMESTAMPTZ
+);
