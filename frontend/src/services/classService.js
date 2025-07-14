@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL + '/classes/';
+const API_URL = process.env.REACT_APP_API_URL + '/api/classes/';
 
 // We need a function to get the token from localStorage
 const getAuthHeader = () => {

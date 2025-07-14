@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL + '/auth/';
+const API_URL = process.env.REACT_APP_API_URL + '/api/auth/';
 
 const register = (name, school_email, principal_email, location, numClasses, principal_password, staff_password, country) => {
   return axios.post(API_URL + 'register', {

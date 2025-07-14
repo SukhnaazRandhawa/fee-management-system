@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL + '/students/';
+const API_URL = process.env.REACT_APP_API_URL + '/api/students/';
 
 const getAuthHeader = () => {
     const user = JSON.parse(localStorage.getItem('user'));
