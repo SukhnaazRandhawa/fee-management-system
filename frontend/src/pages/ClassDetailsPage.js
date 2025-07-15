@@ -43,18 +43,39 @@ const ClassDetailsPage = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [editForm, setEditForm] = useState({});
     const [editError, setEditError] = useState('');
+    const [currentAcademicYear, setCurrentAcademicYear] = useState('');
 
     useEffect(() => {
         fetchData(classId, setClassDetails, setStudents, setPayments, setError, setLoading);
     }, [classId]);
 
+    // Fetch current academic year from session
+    useEffect(() => {
+        const fetchSession = async () => {
+            try {
+                const apiUrl = process.env.REACT_APP_API_URL;
+                const sessionRes = await fetch(`${apiUrl}/api/dashboard/session`, {
+                    headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
+                });
+                const sessionData = await sessionRes.json();
+                setCurrentAcademicYear(sessionData.currentSession);
+            } catch {
+                setCurrentAcademicYear('');
+            }
+        };
+        fetchSession();
+    }, []);
+
     const academicYearMonths = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
 
     const processedStudentData = useMemo(() => {
-        if (!classDetails || students.length === 0) return [];
+        if (!classDetails || students.length === 0 || !currentAcademicYear) return [];
         
         return students.map(student => {
-            const studentPayments = payments.filter(p => p.student_id === student.id);
+            // Only include payments for the current academic year
+            const studentPayments = payments.filter(
+                p => p.student_id === student.id && p.academic_year === currentAcademicYear
+            );
             const totalPaid = studentPayments.reduce((sum, p) => sum + parseFloat(p.amount_paid), 0);
             
             const annualFee = parseFloat(classDetails.annual_fee);
@@ -116,7 +137,7 @@ const ClassDetailsPage = () => {
                 totalDue: totalDue.toFixed(2),
             };
         });
-    }, [students, payments, classDetails]);
+    }, [students, payments, classDetails, currentAcademicYear]);
 
     // Fetch previous year classes for import
     const fetchPrevClasses = async () => {

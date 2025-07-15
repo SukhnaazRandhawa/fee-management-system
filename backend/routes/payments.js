@@ -32,27 +32,45 @@ router.post('/', protect, async (req, res) => {
     let prevBalance = parseFloat(studentData.rows[0].previous_year_balance);
     let paymentAmount = parseFloat(amount_paid);
 
-    // Always record the payment
-    const newPaymentResult = await db.query(
-      `INSERT INTO payments (student_id, amount_paid, payment_method, academic_year)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [student_id, amount_paid, payment_method, academic_year]
-    );
+    function getPreviousAcademicYear(currentAcademicYear) {
+      const [start, end] = currentAcademicYear.split('-').map(Number);
+      return `${start - 1}-${start}`;
+    }
 
-    // Now apply the payment to previous balance and/or current year
-    let paymentLeft = parseFloat(amount_paid);
+    const currentAcademicYear = academic_year; // from request
+    const previousAcademicYear = getPreviousAcademicYear(currentAcademicYear);
+
+    let paymentLeft = paymentAmount;
     let prevPaid = 0;
     let currentPaid = 0;
+    let prevPaymentResult = null;
+    let currentPaymentResult = null;
 
+    // If there is previous balance, apply payment to previous year first
     if (prevBalance > 0) {
         prevPaid = Math.min(paymentLeft, prevBalance);
         prevBalance -= prevPaid;
         paymentLeft -= prevPaid;
         await db.query('UPDATE students SET previous_year_balance = $1 WHERE id = $2', [prevBalance, student_id]);
+
+        // Record payment for previous year
+        if (prevPaid > 0) {
+          prevPaymentResult = await db.query(
+            `INSERT INTO payments (student_id, amount_paid, payment_method, academic_year)
+             VALUES ($1, $2, $3, $4) RETURNING *`,
+            [student_id, prevPaid, payment_method, previousAcademicYear]
+          );
+        }
     }
-    if (paymentLeft > 0) {
+
+    // If any payment is left and previous balance is now zero, apply to current year
+    if (paymentLeft > 0 && prevBalance === 0) {
         currentPaid = paymentLeft;
-        // (You may want to update current year fee status here if needed)
+        currentPaymentResult = await db.query(
+          `INSERT INTO payments (student_id, amount_paid, payment_method, academic_year)
+           VALUES ($1, $2, $3, $4) RETURNING *`,
+          [student_id, currentPaid, payment_method, currentAcademicYear]
+        );
     }
 
     // Fetch school details for receipt
@@ -60,7 +78,8 @@ router.post('/', protect, async (req, res) => {
     const schoolDetails = schoolResult.rows[0];
 
     res.status(201).json({
-      ...(newPaymentResult ? newPaymentResult.rows[0] : {}),
+      previousPayment: prevPaymentResult ? prevPaymentResult.rows[0] : null,
+      currentPayment: currentPaymentResult ? currentPaymentResult.rows[0] : null,
       schoolDetails,
       previousBalancePaid: prevPaid,
       currentYearPaid: currentPaid
