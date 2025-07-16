@@ -22,6 +22,11 @@
   font-size: 1.5rem;
   color: #aaa;
   cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .popup-success {
   background: #e6f9ed;
@@ -105,6 +110,10 @@
   font-weight: 500;
   font-size: 1.08rem;
   transition: color 0.2s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0;
 }
 .dashboard-header-nav a:hover {
   color: #f72585;
@@ -117,6 +126,9 @@
   user-select: none;
   display: flex;
   align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
 }
 
 .vertical-dots {
@@ -150,6 +162,9 @@
   cursor: pointer;
   border-radius: 6px;
   transition: background 0.2s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 .menu-popup button:hover {
   background: #f9f1ff;
@@ -168,6 +183,7 @@
   display: flex;
   height: 100vh;
   background: #f9f1ff;
+  position: relative;
 }
 
 .sidebar {
@@ -182,6 +198,7 @@
   min-height: 100vh;
   position: relative;
   z-index: 1;
+  transition: transform 0.3s ease;
 }
 
 .sidebar::before {
@@ -230,6 +247,10 @@
   border-radius: 8px;
   transition: background 0.2s, color 0.2s;
   margin: 0 1.5rem;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar-nav a:hover {
@@ -247,6 +268,7 @@
   flex-direction: column;
   box-shadow: 0 4px 32px rgba(94,44,165,0.10);
   min-width: 0;
+  transition: margin-left 0.3s ease;
 }
 
 .main-header {
@@ -275,6 +297,11 @@
   color: #5E2CA5;
   cursor: pointer;
   margin-top: 0.5rem;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .main-body {
@@ -368,15 +395,246 @@
   margin-bottom: 0.5rem;
 }
 
-@media (max-width: 900px) {
-  .dashboard-main {
-    padding: 1rem 0.2rem;
+/* Mobile Sidebar Overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile Navigation Toggle */
+.mobile-nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .dashboard-header-content {
+    padding: 0 1rem;
   }
+  
+  .main-header {
+    padding: 1.5rem 2rem 1rem 2rem;
+  }
+  
+  .main-body {
+    padding: 2rem;
+  }
+  
+  .dashboard-main {
+    padding: 2rem 2rem 1.5rem 2rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+    border-radius: 0;
+    transform: translateX(0);
+  }
+  
+  .sidebar.active {
+    transform: translateX(260px);
+  }
+  
+  .main-content {
+    margin: 0;
+    border-radius: 0;
+    min-height: 100vh;
+  }
+  
+  .main-header {
+    padding: 1rem 1.5rem 1rem 1.5rem;
+  }
+  
+  .main-body {
+    padding: 1.5rem;
+  }
+  
+  .dashboard-main {
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+    margin: 1rem 0;
+  }
+  
   .dashboard-cards-row {
     flex-direction: column;
     gap: 1rem;
   }
+  
   .dashboard-card, .dashboard-list-card {
-    padding: 1rem 0.7rem;
+    padding: 1.5rem;
+  }
+  
+  .mobile-nav-toggle {
+    display: flex;
+  }
+  
+  .school-name {
+    font-size: 1.2rem;
+  }
+  
+  .dashboard-header-nav {
+    gap: 1rem;
+  }
+  
+  .dashboard-header-nav a {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-header-content {
+    padding: 0 0.5rem;
+  }
+  
+  .dashboard-header-nav {
+    gap: 0.5rem;
+  }
+  
+  .dashboard-header-nav a {
+    font-size: 0.9rem;
+    padding: 0.3rem 0;
+  }
+  
+  .main-header {
+    padding: 1rem 1rem 0.5rem 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .school-title {
+    font-size: 1.5rem;
+  }
+  
+  .session-label {
+    font-size: 1rem;
+  }
+  
+  .main-body {
+    padding: 1rem;
+  }
+  
+  .dashboard-main {
+    padding: 1rem 1rem 0.5rem 1rem;
+    margin: 0.5rem 0;
+  }
+  
+  .dashboard-main h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .dashboard-card, .dashboard-list-card {
+    padding: 1rem;
+  }
+  
+  .dashboard-card h3 {
+    font-size: 1rem;
+  }
+  
+  .dashboard-card .dashboard-stat {
+    font-size: 1.5rem;
+  }
+  
+  .popup-content {
+    min-width: 280px;
+    max-width: 98vw;
+  }
+  
+  .popup-success, .popup-error {
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-header-content {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+  
+  .dashboard-header-center {
+    order: -1;
+  }
+  
+  .school-name {
+    font-size: 1.1rem;
+  }
+  
+  .main-header {
+    padding: 0.8rem 0.8rem 0.3rem 0.8rem;
+  }
+  
+  .school-title {
+    font-size: 1.3rem;
+  }
+  
+  .main-body {
+    padding: 0.8rem;
+  }
+  
+  .dashboard-main {
+    padding: 0.8rem 0.8rem 0.3rem 0.8rem;
+  }
+  
+  .dashboard-main h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .dashboard-card, .dashboard-list-card {
+    padding: 0.8rem;
+  }
+  
+  .dashboard-card .dashboard-stat {
+    font-size: 1.3rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .sidebar-nav a {
+    min-height: 56px;
+  }
+  
+  .menu-trigger, .main-menu, .mobile-nav-toggle {
+    min-width: 48px;
+    min-height: 48px;
+  }
+  
+  .dashboard-header-nav a {
+    min-height: 48px;
   }
 }
