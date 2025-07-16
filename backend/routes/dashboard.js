@@ -190,29 +190,38 @@ router.get('/summary', protect, async (req, res) => {
 router.get('/session', protect, async (req, res) => {
     try {
         const schoolId = req.user.schoolId;
+        //console.log('Session request for schoolId:', schoolId);
         
         // Check if we need to auto-start a new session first
         const currentSessionResult = await db.query('SELECT academic_year FROM sessions WHERE school_id = $1 AND is_current = TRUE', [schoolId]);
+        //console.log('Current session query result:', currentSessionResult.rows);
+        
         if (currentSessionResult.rows.length > 0) {
             const currentSession = currentSessionResult.rows[0].academic_year;
+            //console.log('Found current session:', currentSession);
             
             // Check if we should auto-start a new session (May onwards)
             const { shouldAutoStartNewSession, autoStartNewSession } = require('../utils/sessionUtils');
             if (shouldAutoStartNewSession(currentSession)) {
+                console.log('Auto-starting new session...');
                 await autoStartNewSession(schoolId, currentSession);
                 // Get the new session
                 const newSessionResult = await db.query('SELECT academic_year FROM sessions WHERE school_id = $1 AND is_current = TRUE', [schoolId]);
+                console.log('New session after auto-start:', newSessionResult.rows[0].academic_year);
                 res.json({ currentSession: newSessionResult.rows[0].academic_year });
                 return;
             }
             
+            //console.log('Returning current session:', currentSession);
             res.json({ currentSession: currentSession });
         } else {
             // Fallback: calculate from date
-            res.json({ currentSession: getCurrentAcademicYear() });
+            const fallbackSession = getCurrentAcademicYear();
+            //console.log('No session found, using fallback:', fallbackSession);
+            res.json({ currentSession: fallbackSession });
         }
     } catch (err) {
-        console.error(err);
+        console.error('Error in session endpoint:', err);
         res.status(500).json({ error: 'Server error fetching session.' });
     }
 });

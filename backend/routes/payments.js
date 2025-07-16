@@ -12,6 +12,8 @@ router.post('/', protect, async (req, res) => {
     const { student_id, amount_paid, payment_method, academic_year } = req.body;
     const schoolId = req.school.schoolId;
 
+    //console.log('Payment request received:', { student_id, amount_paid, payment_method, academic_year, schoolId });
+
     if (!student_id || !amount_paid || !payment_method || !academic_year) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
@@ -31,6 +33,8 @@ router.post('/', protect, async (req, res) => {
     const studentData = await db.query('SELECT previous_year_balance FROM students WHERE id = $1', [student_id]);
     let prevBalance = parseFloat(studentData.rows[0].previous_year_balance);
     let paymentAmount = parseFloat(amount_paid);
+
+    //console.log('Student data:', { prevBalance, paymentAmount });
 
     function getPreviousAcademicYear(currentAcademicYear) {
       const [start, end] = currentAcademicYear.split('-').map(Number);
@@ -60,6 +64,7 @@ router.post('/', protect, async (req, res) => {
              VALUES ($1, $2, $3, $4) RETURNING *`,
             [student_id, prevPaid, payment_method, previousAcademicYear]
           );
+          console.log('Previous payment recorded:', prevPaymentResult.rows[0]);
         }
     }
 
@@ -71,21 +76,25 @@ router.post('/', protect, async (req, res) => {
            VALUES ($1, $2, $3, $4) RETURNING *`,
           [student_id, currentPaid, payment_method, currentAcademicYear]
         );
+        //console.log('Current payment recorded:', currentPaymentResult.rows[0]);
     }
 
     // Fetch school details for receipt
-    const schoolResult = await db.query('SELECT name, location FROM schools WHERE id = $1', [schoolId]);
+    const schoolResult = await db.query('SELECT name FROM schools WHERE id = $1', [schoolId]);
     const schoolDetails = schoolResult.rows[0];
 
-    res.status(201).json({
+    const response = {
       previousPayment: prevPaymentResult ? prevPaymentResult.rows[0] : null,
       currentPayment: currentPaymentResult ? currentPaymentResult.rows[0] : null,
       schoolDetails,
       previousBalancePaid: prevPaid,
       currentYearPaid: currentPaid
-    });
+    };
+
+    //console.log('Payment response:', response);
+    res.status(201).json(response);
   } catch (err) {
-    console.error(err);
+    console.error('Payment error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });

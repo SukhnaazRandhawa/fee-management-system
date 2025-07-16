@@ -18,12 +18,24 @@ const DashboardLayout = () => {
         const fetchSession = async () => {
             try {
                 const apiUrl = process.env.REACT_APP_API_URL;
-                const res = await fetch(`${apiUrl}/dashboard/session`, {
+                console.log('Fetching session from:', `${apiUrl}/api/dashboard/session`);
+                const res = await fetch(`${apiUrl}/api/dashboard/session`, {
                     headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
                 });
+                
+                if (!res.ok) {
+                    console.error('Session fetch failed with status:', res.status);
+                    const errorData = await res.json();
+                    console.error('Error data:', errorData);
+                    setCurrentSession('');
+                    return;
+                }
+                
                 const data = await res.json();
+                console.log('Session data received:', data);
                 setCurrentSession(data.currentSession);
-            } catch {
+            } catch (error) {
+                console.error('Error fetching session:', error);
                 setCurrentSession('');
             }
         };
@@ -40,7 +52,7 @@ const DashboardLayout = () => {
         setMessage('');
         try {
             const apiUrl = process.env.REACT_APP_API_URL;
-            const res = await fetch(`${apiUrl}/dashboard/rollover`, {
+            const res = await fetch(`${apiUrl}/api/dashboard/rollover`, {
                 method: 'POST',
                 headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
             });
@@ -53,7 +65,7 @@ const DashboardLayout = () => {
                 setMessage('New session started successfully!');
                 setShowPopup(true);
                 // Refetch session after rollover
-                const sessionRes = await fetch(`${apiUrl}/dashboard/session`, {
+                const sessionRes = await fetch(`${apiUrl}/api/dashboard/session`, {
                     headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
                 });
                 const sessionData = await sessionRes.json();

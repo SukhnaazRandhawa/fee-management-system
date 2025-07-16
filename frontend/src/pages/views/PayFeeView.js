@@ -72,13 +72,48 @@ const PayFeeView = () => {
                 payment_method: paymentData.payment_method,
                 academic_year,
             };
+            console.log('Submitting payment data:', dataToSubmit);
             const response = await paymentService.makePayment(dataToSubmit);
-            setLastPayment(response.data);
+            //console.log('Payment response:', response.data);
+            
+            // Structure the payment data properly for the receipt
+            const paymentResponse = response.data;
+            let receiptPaymentDetails = null;
+            
+            // Determine which payment to show in receipt (prefer current year payment)
+            if (paymentResponse.currentPayment) {
+                receiptPaymentDetails = {
+                    id: paymentResponse.currentPayment.id,
+                    amount_paid: paymentResponse.currentPayment.amount_paid,
+                    payment_method: paymentResponse.currentPayment.payment_method,
+                    payment_date: paymentResponse.currentPayment.payment_date,
+                    academic_year: paymentResponse.currentPayment.academic_year
+                };
+                console.log('Using current payment for receipt:', receiptPaymentDetails);
+            } else if (paymentResponse.previousPayment) {
+                receiptPaymentDetails = {
+                    id: paymentResponse.previousPayment.id,
+                    amount_paid: paymentResponse.previousPayment.amount_paid,
+                    payment_method: paymentResponse.previousPayment.payment_method,
+                    payment_date: paymentResponse.previousPayment.payment_date,
+                    academic_year: paymentResponse.previousPayment.academic_year
+                };
+                console.log('Using previous payment for receipt:', receiptPaymentDetails);
+            }
+            
+            // Add school details to the payment details
+            if (receiptPaymentDetails && paymentResponse.schoolDetails) {
+                receiptPaymentDetails.schoolDetails = paymentResponse.schoolDetails;
+            }
+            
+            console.log('Final receipt payment details:', receiptPaymentDetails);
+            setLastPayment(receiptPaymentDetails);
             
             setPaymentData({ amount_paid: '', payment_method: '' });
             setMessage('Payment made successfully! Print the receipt below.');
 
         } catch (err) {
+            console.error('Payment error:', err);
             setError(err.response?.data?.error || 'Payment failed.');
         }
     };

@@ -149,7 +149,7 @@ const ClassDetailsPage = () => {
         setImportSuccess('');
         try {
             const apiUrl = process.env.REACT_APP_API_URL;
-            const sessionRes = await fetch(`${apiUrl}/dashboard/session`, {
+            const sessionRes = await fetch(`${apiUrl}/api/dashboard/session`, {
                 headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
             });
             const sessionData = await sessionRes.json();
