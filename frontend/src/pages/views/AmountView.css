@@ -2,13 +2,16 @@
     padding: 2.5rem 2rem;
     background: #f9f1ff;
     min-height: 100vh;
+    /* Prevent horizontal scroll */
+    overflow-x: hidden;
 }
 
 h2 {
     color: #5e2ca5;
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
     font-weight: 700;
     margin-bottom: 2rem;
+    line-height: 1.2;
 }
 
 .summary-cards {
@@ -27,6 +30,10 @@ h2 {
     text-align: left;
     transition: box-shadow 0.2s, border 0.2s, transform 0.2s;
     position: relative;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 .summary-card:hover {
     box-shadow: 0 6px 24px rgba(94,44,165,0.18);
@@ -35,17 +42,19 @@ h2 {
 }
 .summary-card h3 {
     margin-top: 0;
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
     color: #5e2ca5;
     font-weight: 600;
     margin-bottom: 1.2rem;
+    line-height: 1.3;
 }
 .summary-card p {
-    font-size: 2.2rem;
+    font-size: clamp(1.8rem, 5vw, 2.2rem);
     font-weight: 700;
     color: #2d2d2d;
     margin-bottom: 0.5rem;
     margin-top: 0;
+    line-height: 1.1;
 }
 .summary-card strong {
     color: #5e2ca5;
@@ -59,45 +68,328 @@ h2 {
     padding: 2rem 1.5rem 1.5rem 1.5rem;
     text-align: left;
     margin-bottom: 2rem;
+    min-height: 200px;
 }
 .students-paid-today h3 {
     color: #5e2ca5;
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
     font-weight: 700;
     margin-top: 0;
     margin-bottom: 1.2rem;
+    line-height: 1.3;
 }
 .students-paid-today ul {
     list-style-type: none;
     padding-left: 0;
     margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    /* Smooth scrolling for touch devices */
+    -webkit-overflow-scrolling: touch;
 }
 .students-paid-today li {
     padding: 0.7rem 0;
     border-bottom: 1px solid #f1e6fa;
-    font-size: 1.05rem;
+    font-size: clamp(0.95rem, 2.2vw, 1.05rem);
     color: #2d2d2d;
+    line-height: 1.4;
 }
 .students-paid-today li:last-child {
     border-bottom: none;
 }
 .students-paid-today p {
     color: #888;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 2vw, 1rem);
     margin: 0.5rem 0 0 0;
+    line-height: 1.4;
 }
 
-@media (max-width: 800px) {
+/* Enhanced Responsive Design */
+@media (max-width: 1200px) {
+    .amount-view {
+        padding: 2rem 1.5rem;
+    }
+    
+    .summary-cards {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .summary-card {
+        padding: 1.8rem 1.3rem 1.3rem 1.3rem;
+        min-height: 150px;
+    }
+    
+    .students-paid-today {
+        padding: 1.8rem 1.3rem 1.3rem 1.3rem;
+        margin-bottom: 1.8rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .amount-view {
+        padding: 1.8rem 1rem;
+    }
+    
+    .summary-cards {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1.2rem;
+        margin-bottom: 1.8rem;
+    }
+    
+    .summary-card {
+        padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+        min-height: 140px;
+    }
+    
+    .summary-card h3 {
+        margin-bottom: 1rem;
+    }
+    
+    .students-paid-today {
+        padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .students-paid-today h3 {
+        margin-bottom: 1rem;
+    }
+    
+    .students-paid-today ul {
+        max-height: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .amount-view {
+        padding: 1.5rem 0.8rem;
+    }
+    
+    .summary-cards {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .summary-card {
+        padding: 1.3rem 1rem 1rem 1rem;
+        min-height: 130px;
+    }
+    
+    .summary-card h3 {
+        margin-bottom: 0.8rem;
+    }
+    
+    .students-paid-today {
+        padding: 1.3rem 1rem 1rem 1rem;
+        margin-bottom: 1.3rem;
+    }
+    
+    .students-paid-today h3 {
+        margin-bottom: 0.8rem;
+    }
+    
+    .students-paid-today ul {
+        max-height: 200px;
+    }
+    
+    .students-paid-today li {
+        padding: 0.6rem 0;
+    }
+}
+
+@media (max-width: 600px) {
     .amount-view {
         padding: 1.2rem 0.5rem;
     }
+    
     .summary-cards {
-        gap: 1rem;
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+        margin-bottom: 1.2rem;
     }
-    .summary-card, .students-paid-today {
-        padding: 1.2rem 0.7rem 1rem 0.7rem;
+    
+    .summary-card {
+        padding: 1.2rem 0.8rem 0.8rem 0.8rem;
+        min-height: 120px;
+        border-radius: 12px;
     }
-    h2 {
-        font-size: 1.3rem;
+    
+    .summary-card h3 {
+        margin-bottom: 0.6rem;
+        font-size: 1rem;
+    }
+    
+    .summary-card p {
+        font-size: 1.6rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .students-paid-today {
+        padding: 1.2rem 0.8rem 0.8rem 0.8rem;
+        margin-bottom: 1.2rem;
+        border-radius: 12px;
+    }
+    
+    .students-paid-today h3 {
+        margin-bottom: 0.6rem;
+        font-size: 1rem;
+    }
+    
+    .students-paid-today ul {
+        max-height: 180px;
+    }
+    
+    .students-paid-today li {
+        padding: 0.5rem 0;
+        font-size: 0.95rem;
+    }
+    
+    .students-paid-today p {
+        font-size: 0.9rem;
+        margin: 0.3rem 0 0 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .amount-view {
+        padding: 1rem 0.3rem;
+    }
+    
+    .summary-cards {
+        gap: 0.6rem;
+        margin-bottom: 1rem;
+    }
+    
+    .summary-card {
+        padding: 1rem 0.6rem 0.6rem 0.6rem;
+        min-height: 110px;
+        border-radius: 8px;
+    }
+    
+    .summary-card h3 {
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .summary-card p {
+        font-size: 1.4rem;
+        margin-bottom: 0.2rem;
+    }
+    
+    .students-paid-today {
+        padding: 1rem 0.6rem 0.6rem 0.6rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+    }
+    
+    .students-paid-today h3 {
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .students-paid-today ul {
+        max-height: 160px;
+    }
+    
+    .students-paid-today li {
+        padding: 0.4rem 0;
+        font-size: 0.9rem;
+    }
+    
+    .students-paid-today p {
+        font-size: 0.85rem;
+        margin: 0.2rem 0 0 0;
+    }
+}
+
+@media (max-width: 360px) {
+    .amount-view {
+        padding: 0.8rem 0.2rem;
+    }
+    
+    .summary-cards {
+        gap: 0.5rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .summary-card {
+        padding: 0.8rem 0.5rem 0.5rem 0.5rem;
+        min-height: 100px;
+        border-radius: 6px;
+    }
+    
+    .summary-card h3 {
+        margin-bottom: 0.4rem;
+        font-size: 0.9rem;
+    }
+    
+    .summary-card p {
+        font-size: 1.2rem;
+        margin-bottom: 0.1rem;
+    }
+    
+    .students-paid-today {
+        padding: 0.8rem 0.5rem 0.5rem 0.5rem;
+        margin-bottom: 0.8rem;
+        border-radius: 6px;
+    }
+    
+    .students-paid-today h3 {
+        margin-bottom: 0.4rem;
+        font-size: 0.9rem;
+    }
+    
+    .students-paid-today ul {
+        max-height: 140px;
+    }
+    
+    .students-paid-today li {
+        padding: 0.3rem 0;
+        font-size: 0.85rem;
+    }
+    
+    .students-paid-today p {
+        font-size: 0.8rem;
+        margin: 0.1rem 0 0 0;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .summary-card:hover {
+        transform: none;
+    }
+    
+    .summary-cards {
+        gap: 1.5rem; /* Larger gaps for touch */
+    }
+    
+    .students-paid-today ul {
+        gap: 0.8rem;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .summary-card,
+    .students-paid-today {
+        border: 2px solid #5e2ca5;
+    }
+    
+    .students-paid-today li {
+        border-bottom: 2px solid #5e2ca5;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .summary-card {
+        transition: none;
+    }
+    
+    .summary-card:hover {
+        transform: none;
     }
 } 
