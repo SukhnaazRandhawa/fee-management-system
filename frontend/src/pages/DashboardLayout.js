@@ -18,7 +18,7 @@ const DashboardLayout = () => {
         const fetchSession = async () => {
             try {
                 const apiUrl = process.env.REACT_APP_API_URL;
-                const res = await fetch(`${apiUrl}/api/dashboard/session`, {
+                const res = await fetch(`${apiUrl}/dashboard/session`, {
                     headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
                 });
                 const data = await res.json();
@@ -40,7 +40,7 @@ const DashboardLayout = () => {
         setMessage('');
         try {
             const apiUrl = process.env.REACT_APP_API_URL;
-            const res = await fetch(`${apiUrl}/api/dashboard/rollover`, {
+            const res = await fetch(`${apiUrl}/dashboard/rollover`, {
                 method: 'POST',
                 headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
             });
@@ -53,7 +53,7 @@ const DashboardLayout = () => {
                 setMessage('New session started successfully!');
                 setShowPopup(true);
                 // Refetch session after rollover
-                const sessionRes = await fetch(`${apiUrl}/api/dashboard/session`, {
+                const sessionRes = await fetch(`${apiUrl}/dashboard/session`, {
                     headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user'))?.token }
                 });
                 const sessionData = await sessionRes.json();
