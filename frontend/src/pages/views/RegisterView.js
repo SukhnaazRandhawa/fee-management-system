@@ -12,6 +12,7 @@ export default function RegisterView() {
         mother_name: '',
         email: '',
         phone: '',
+        address: '',
     };
     const [formData, setFormData] = useState(initialFormData);
     const [classes, setClasses] = useState([]);
@@ -74,6 +75,10 @@ export default function RegisterView() {
                         <input type="text" name="mother_name" placeholder="Mother's Name" value={formData.mother_name} onChange={handleChange} required />
                     </div>
                     <div>
+                        <label className="register-label">Address</label>
+                        <input type="text" name="address" placeholder="Address" value={formData.address} onChange={handleChange} required />
+                    </div>
+                    <div>
                         <label className="register-label">Email (optional)</label>
                         <input type="email" name="email" placeholder="Email (optional)" value={formData.email} onChange={handleChange} />
                     </div>
@@ -81,12 +86,12 @@ export default function RegisterView() {
                         <label className="register-label">Phone Number</label>
                         <input type="text" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} required />
                     </div>
-                    <button type="submit">Register</button>
+                    <button type="submit">Register Student</button>
+                    {message && <div className="success-message">{message}</div>}
+                    {error && <div className="error-message">{error}</div>}
                 </form>
-                {message && <div className="success-message">{message}</div>}
-                {error && <div className="error-message">{error}</div>}
             </div>
-            <img src={RegisterSVG} alt="Register illustration" className="register-illustration" />
+            <img src={RegisterSVG} alt="Register Illustration" className="register-illustration" />
         </div>
     );
 } 

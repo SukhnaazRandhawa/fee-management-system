@@ -25,7 +25,7 @@ const generateStudentId = async () => {
 // @access  Private
 router.post('/register', protect, async (req, res) => {
   try {
-    const { class_id, name, father_name, mother_name, email, phone } = req.body;
+    const { class_id, name, father_name, mother_name, email, phone, address } = req.body;
 
     // Basic validation
     if (!class_id || !name || !father_name || !mother_name || !phone) {
@@ -35,10 +35,10 @@ router.post('/register', protect, async (req, res) => {
     const student_id = await generateStudentId();
 
     const newStudent = await db.query(
-      `INSERT INTO students (student_id, class_id, name, father_name, mother_name, email, phone)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO students (student_id, class_id, name, father_name, mother_name, email, phone, address)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
-      [student_id, class_id, name, father_name, mother_name, email, phone]
+      [student_id, class_id, name, father_name, mother_name, email, phone, address || null]
     );
 
     res.status(201).json(newStudent.rows[0]);
@@ -122,7 +122,7 @@ router.post('/search', protect, async (req, res) => {
 router.put('/:id', protect, async (req, res) => {
   try {
     const { id } = req.params;
-    const { class_id, name, father_name, mother_name, email, phone, previous_year_balance, status } = req.body;
+    const { class_id, name, father_name, mother_name, email, phone, previous_year_balance, status, address } = req.body;
     // Only update fields that are provided
     const updateFields = [];
     const updateValues = [];
@@ -136,6 +136,7 @@ router.put('/:id', protect, async (req, res) => {
     if (phone) { updateFields.push(`phone = $${idx++}`); updateValues.push(phone); }
     if (previous_year_balance !== undefined) { updateFields.push(`previous_year_balance = $${idx++}`); updateValues.push(previous_year_balance); }
     if (status) { updateFields.push(`status = $${idx++}`); updateValues.push(status); }
+    if (address !== undefined) { updateFields.push(`address = $${idx++}`); updateValues.push(address); }
 
     if (updateFields.length === 0) {
       return res.status(400).json({ error: 'No fields to update.' });
@@ -156,14 +157,15 @@ router.put('/:id', protect, async (req, res) => {
     // Update archived_students with the same student_id
     await db.query(
       `UPDATE archived_students
-       SET name = $1, father_name = $2, mother_name = $3, email = $4, phone = $5
-       WHERE student_id = $6`,
+       SET name = $1, father_name = $2, mother_name = $3, email = $4, phone = $5, address = $6
+       WHERE student_id = $7`,
       [
         updatedStudent.name,
         updatedStudent.father_name,
         updatedStudent.mother_name,
         updatedStudent.email,
         updatedStudent.phone,
+        updatedStudent.address,
         updatedStudent.student_id
       ]
     );
