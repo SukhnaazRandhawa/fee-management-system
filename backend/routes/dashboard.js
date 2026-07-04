@@ -28,7 +28,7 @@ router.get('/summary', protect, async (req, res) => {
             `SELECT SUM(p.amount_paid) FROM payments p
              JOIN students s ON p.student_id = s.id
              JOIN classes c ON s.class_id = c.id
-             WHERE c.school_id = $1 AND p.payment_date::date = CURRENT_DATE`,
+             WHERE c.school_id = $1 AND p.payment_date::date = CURRENT_DATE AND p.voided_at IS NULL`,
             [schoolId]
         );
         const totalCollectedToday = parseFloat(todayCollectionResult.rows[0].sum) || 0;
@@ -39,7 +39,7 @@ router.get('/summary', protect, async (req, res) => {
              FROM payments p
              JOIN students s ON p.student_id = s.id
              JOIN classes c ON s.class_id = c.id
-             WHERE c.school_id = $1 AND p.payment_date::date = CURRENT_DATE
+             WHERE c.school_id = $1 AND p.payment_date::date = CURRENT_DATE AND p.voided_at IS NULL
              GROUP BY p.payment_method`,
             [schoolId]
         );
@@ -59,7 +59,7 @@ router.get('/summary', protect, async (req, res) => {
             `SELECT SUM(p.amount_paid) FROM payments p
              JOIN students s ON p.student_id = s.id
              JOIN classes c ON s.class_id = c.id
-             WHERE c.school_id = $1 AND DATE_TRUNC('month', p.payment_date) = DATE_TRUNC('month', CURRENT_DATE)`,
+             WHERE c.school_id = $1 AND DATE_TRUNC('month', p.payment_date) = DATE_TRUNC('month', CURRENT_DATE) AND p.voided_at IS NULL`,
             [schoolId]
         );
         const currentMonthCollection = parseFloat(monthCollectionResult.rows[0].sum) || 0;
@@ -75,7 +75,7 @@ router.get('/summary', protect, async (req, res) => {
             `SELECT SUM(p.amount_paid) FROM payments p
              JOIN students s ON p.student_id = s.id
              JOIN classes c ON s.class_id = c.id
-             WHERE c.school_id = $1 AND p.payment_date >= $2 AND p.payment_date <= $3`,
+             WHERE c.school_id = $1 AND p.payment_date >= $2 AND p.payment_date <= $3 AND p.voided_at IS NULL`,
             [schoolId, `${academicSessionStartYear}-04-01`, `${academicSessionEndYear}-03-31`]
         );
         const currentAcademicYearCollection = parseFloat(academicYearCollectionResult.rows[0].sum) || 0;
@@ -84,10 +84,11 @@ router.get('/summary', protect, async (req, res) => {
 
         // 4. List of students who paid today
         const studentsPaidTodayResult = await db.query(
-            `SELECT s.name, p.amount_paid FROM payments p
+            `SELECT p.id, s.name, p.amount_paid, p.voided_at FROM payments p
              JOIN students s ON p.student_id = s.id
              JOIN classes c ON s.class_id = c.id
-             WHERE c.school_id = $1 AND p.payment_date::date = CURRENT_DATE`,
+             WHERE c.school_id = $1 AND p.payment_date::date = CURRENT_DATE
+             ORDER BY p.payment_date DESC`,
             [schoolId]
         );
         const studentsPaidToday = studentsPaidTodayResult.rows;
@@ -103,7 +104,7 @@ router.get('/summary', protect, async (req, res) => {
         const allPaymentsResult = await db.query(
             `SELECT p.student_id, SUM(p.amount_paid) as total_paid
              FROM payments p JOIN students s ON p.student_id = s.id JOIN classes c ON s.class_id = c.id
-             WHERE c.school_id = $1 GROUP BY p.student_id`,
+             WHERE c.school_id = $1 AND p.voided_at IS NULL GROUP BY p.student_id`,
             [schoolId]
         );
         
@@ -283,8 +284,10 @@ router.post('/rollover', protect, requirePrincipal, async (req, res) => {
                 `SELECT * FROM payments WHERE student_id = $1 AND academic_year = $2`,
                 [student.id, currentSession]
             );
-            // Calculate final balance (current balance at end of year)
-            const totalPaid = paymentsResult.rows.reduce((sum, p) => sum + parseFloat(p.amount_paid), 0);
+            // Calculate final balance (current balance at end of year), excluding voided payments
+            const totalPaid = paymentsResult.rows
+                .filter(p => !p.voided_at)
+                .reduce((sum, p) => sum + parseFloat(p.amount_paid), 0);
             // Get class fee info
             const classResult = await db.query('SELECT * FROM classes WHERE id = $1', [student.class_id]);
             const classInfo = classResult.rows[0];
@@ -303,9 +306,9 @@ router.post('/rollover', protect, requirePrincipal, async (req, res) => {
             // Insert all payments into archived_payments
             for (const payment of paymentsResult.rows) {
                 await db.query(
-                    `INSERT INTO archived_payments (archived_student_id, amount_paid, payment_date, payment_method)
-                     VALUES ($1, $2, $3, $4)`,
-                    [archivedStudentId, payment.amount_paid, payment.payment_date, payment.payment_method]
+                    `INSERT INTO archived_payments (archived_student_id, amount_paid, payment_date, payment_method, voided_at, voided_by)
+                     VALUES ($1, $2, $3, $4, $5, $6)`,
+                    [archivedStudentId, payment.amount_paid, payment.payment_date, payment.payment_method, payment.voided_at, payment.voided_by]
                 );
             }
         }

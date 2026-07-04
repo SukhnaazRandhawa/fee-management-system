@@ -1,30 +1,46 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import dashboardService from '../../services/dashboardService';
+import paymentService from '../../services/paymentService';
 import './AmountView.css';
 
 const AmountView = () => {
     const [summary, setSummary] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [voidingId, setVoidingId] = useState(null);
     const { role } = useContext(AuthContext);
 
+    const fetchSummary = async () => {
+        try {
+            setLoading(true);
+            const response = await dashboardService.getSummary();
+            setSummary(response.data);
+            setError(null);
+        } catch (err) {
+            setError('Failed to fetch summary data.');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchSummary = async () => {
-            try {
-                setLoading(true);
-                const response = await dashboardService.getSummary();
-                setSummary(response.data);
-                setError(null);
-            } catch (err) {
-                setError('Failed to fetch summary data.');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchSummary();
     }, []);
+
+    const handleVoid = async (paymentId) => {
+        if (!window.confirm('Are you sure? This cannot be undone.')) return;
+        setVoidingId(paymentId);
+        try {
+            await paymentService.voidPayment(paymentId);
+            await fetchSummary();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to void payment.');
+        } finally {
+            setVoidingId(null);
+        }
+    };
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
@@ -71,9 +87,21 @@ const AmountView = () => {
                 <h3>List of Students Paid Today</h3>
                 {summary?.studentsPaidToday.length > 0 ? (
                     <ul>
-                        {summary.studentsPaidToday.map((payment, index) => (
-                            <li key={index}>
+                        {summary.studentsPaidToday.map((payment) => (
+                            <li key={payment.id} style={payment.voided_at ? { textDecoration: 'line-through', opacity: 0.6 } : undefined}>
                                 {payment.name} - ${payment.amount_paid}
+                                {payment.voided_at ? (
+                                    <span style={{ marginLeft: '0.5rem', fontStyle: 'italic' }}> (Voided)</span>
+                                ) : role === 'principal' ? (
+                                    <button
+                                        className="void-btn"
+                                        style={{ marginLeft: '0.5rem' }}
+                                        disabled={voidingId === payment.id}
+                                        onClick={() => handleVoid(payment.id)}
+                                    >
+                                        {voidingId === payment.id ? 'Voiding...' : 'Void'}
+                                    </button>
+                                ) : null}
                             </li>
                         ))}
                     </ul>

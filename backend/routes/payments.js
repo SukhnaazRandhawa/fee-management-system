@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../db');
 const { protect } = require('../middleware/authMiddleware');
+const requirePrincipal = require('../middleware/requirePrincipal');
 
 const router = express.Router();
 
@@ -11,6 +12,7 @@ router.post('/', protect, async (req, res) => {
   try {
     const { student_id, amount_paid, payment_method, academic_year } = req.body;
     const schoolId = req.school.schoolId;
+    const recordedBy = req.user.userId;
 
     //console.log('Payment request received:', { student_id, amount_paid, payment_method, academic_year, schoolId });
 
@@ -60,9 +62,9 @@ router.post('/', protect, async (req, res) => {
         // Record payment for previous year
         if (prevPaid > 0) {
           prevPaymentResult = await db.query(
-            `INSERT INTO payments (student_id, amount_paid, payment_method, academic_year)
-             VALUES ($1, $2, $3, $4) RETURNING *`,
-            [student_id, prevPaid, payment_method, previousAcademicYear]
+            `INSERT INTO payments (student_id, amount_paid, payment_method, academic_year, recorded_by)
+             VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+            [student_id, prevPaid, payment_method, previousAcademicYear, recordedBy]
           );
           console.log('Previous payment recorded:', prevPaymentResult.rows[0]);
         }
@@ -72,9 +74,9 @@ router.post('/', protect, async (req, res) => {
     if (paymentLeft > 0 && prevBalance === 0) {
         currentPaid = paymentLeft;
         currentPaymentResult = await db.query(
-          `INSERT INTO payments (student_id, amount_paid, payment_method, academic_year)
-           VALUES ($1, $2, $3, $4) RETURNING *`,
-          [student_id, currentPaid, payment_method, currentAcademicYear]
+          `INSERT INTO payments (student_id, amount_paid, payment_method, academic_year, recorded_by)
+           VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+          [student_id, currentPaid, payment_method, currentAcademicYear, recordedBy]
         );
         //console.log('Current payment recorded:', currentPaymentResult.rows[0]);
     }
@@ -117,7 +119,7 @@ router.get('/class/:classId', protect, async (req, res) => {
       `SELECT p.student_id, p.amount_paid, p.payment_date, p.academic_year
        FROM payments p
        JOIN students s ON p.student_id = s.id
-       WHERE s.class_id = $1`,
+       WHERE s.class_id = $1 AND p.voided_at IS NULL`,
       [classId]
     );
 
@@ -126,6 +128,41 @@ router.get('/class/:classId', protect, async (req, res) => {
   {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// @route   PUT /api/payments/:id/void
+// @desc    Void a payment (principal only). Voided payments are kept for
+//          audit history and excluded from totals; corrections are made by
+//          voiding and re-entering, never by editing or deleting a row.
+// @access  Private, Principal only
+router.put('/:id/void', protect, requirePrincipal, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const schoolId = req.school.schoolId;
+
+    const paymentResult = await db.query(
+      `SELECT p.id, p.voided_at FROM payments p
+       JOIN students s ON p.student_id = s.id
+       JOIN classes c ON s.class_id = c.id
+       WHERE p.id = $1 AND c.school_id = $2`,
+      [id, schoolId]
+    );
+    if (paymentResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Payment not found or not authorized.' });
+    }
+    if (paymentResult.rows[0].voided_at) {
+      return res.status(409).json({ error: 'Payment has already been voided.' });
+    }
+
+    const updated = await db.query(
+      `UPDATE payments SET voided_at = NOW(), voided_by = $1 WHERE id = $2 RETURNING *`,
+      [req.user.userId, id]
+    );
+    res.json(updated.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during payment void.' });
   }
 });
 
