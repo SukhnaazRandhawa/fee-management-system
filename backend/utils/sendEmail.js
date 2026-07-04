@@ -1,28 +1,14 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
 const sendEmail = async (options) => {
-    // 1) Create a transporter
-    const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
-        secure: false, // false for port 587 (STARTTLS)
-        requireTLS: true,
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-        },
-    });
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-    // 2) Define the email options
-    const mailOptions = {
-        from: `Fee Management System <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+        from: process.env.EMAIL_FROM,
         to: options.email,
         subject: options.subject,
         html: options.message,
-    };
-
-    // 3) Actually send the email
-    await transporter.sendMail(mailOptions);
+    });
 };
 
-module.exports = sendEmail; 
+module.exports = sendEmail;
