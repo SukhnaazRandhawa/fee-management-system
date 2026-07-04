@@ -9,11 +9,13 @@ CREATE TABLE schools (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255),
     num_classes INTEGER NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     reset_password_token TEXT,
-    reset_password_expires TIMESTAMPTZ
+    reset_password_expires TIMESTAMPTZ,
+    country VARCHAR(255),
+    role VARCHAR(50)
 );
 
 -- Table for classes
@@ -41,6 +43,8 @@ CREATE TABLE students (
     phone TEXT NOT NULL,
     previous_year_balance DECIMAL(10, 2) DEFAULT 0.00,
     registration_date TIMESTAMPTZ DEFAULT NOW(),
+    address TEXT,
+    status VARCHAR(20) DEFAULT 'active',
     CONSTRAINT fk_class
         FOREIGN KEY(class_id)
         REFERENCES classes(id)

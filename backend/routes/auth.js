@@ -59,46 +59,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /api/auth/login
-router.post('/login', async (req, res) => {
-  try {
-    const { name, password } = req.body;
-    if (!name || !password) {
-      return res.status(400).json({ error: 'School name and password are required.' });
-    }
-
-    // Find the school by name
-    const schoolResult = await db.query('SELECT * FROM schools WHERE name = $1', [name]);
-    if (schoolResult.rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid credentials.' });
-    }
-
-    const school = schoolResult.rows[0];
-
-    // Compare passwords
-    const isPasswordValid = await bcrypt.compare(password, school.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid credentials.' });
-    }
-
-    // Initialize sessions table if empty (for first-time setup)
-    await initializeSessionsIfEmpty(school.id);
-
-    // Generate JWT (include role)
-    const token = jwt.sign(
-      { schoolId: school.id, name: school.name, role: school.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '1d' } // Token expires in 1 day
-    );
-
-    res.json({ token, schoolName: school.name, role: school.role, message: 'Logged in successfully!' });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error.' });
-  }
-});
-
 // POST /api/auth/user-login
 router.post('/user-login', async (req, res) => {
   try {

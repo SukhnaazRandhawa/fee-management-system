@@ -15,13 +15,6 @@ const register = (name, school_email, principal_email, location, numClasses, pri
   });
 };
 
-const login = (name, password) => {
-  return axios.post(API_URL + 'login', {
-    name,
-    password,
-  });
-};
-
 const logout = () => {
   localStorage.removeItem('user');
 };
@@ -40,7 +33,6 @@ const userLogin = (email, password) => {
 
 const authService = {
   register,
-  login,
   logout,
   forgotPassword,
   resetPassword,
