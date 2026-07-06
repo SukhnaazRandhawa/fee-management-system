@@ -1,4 +1,5 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -7,6 +8,29 @@ const sendEmail = require('../utils/sendEmail');
 const { initializeSessionsIfEmpty } = require('../utils/sessionUtils');
 
 const router = express.Router();
+
+// Normal users rarely mistype their password more than a couple of times;
+// 5 attempts per 15 minutes per IP is enough headroom without helping a
+// brute-force attempt make meaningful progress.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true, // only failed attempts count; a correct password always gets through
+  message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
+});
+
+// Slightly more lenient than login, since a household might trigger this a
+// few times genuinely (multiple staff sharing an IP) - also caps how much
+// of our Resend quota one IP can burn through by spamming this endpoint.
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many password reset requests. Please try again in 15 minutes.' },
+});
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
@@ -60,7 +84,7 @@ router.post('/register', async (req, res) => {
 });
 
 // POST /api/auth/user-login
-router.post('/user-login', async (req, res) => {
+router.post('/user-login', loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -100,7 +124,7 @@ router.post('/user-login', async (req, res) => {
 // @route   POST /api/auth/forgot-password
 // @desc    Request a password reset
 // @access  Public
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
     try {
         const { email } = req.body;
         // Find the user by email (principal or staff)

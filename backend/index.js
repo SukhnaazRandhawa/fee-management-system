@@ -4,6 +4,11 @@ require('dotenv').config({ path: './.env' });
 
 const app = express();
 
+// Render sits in front of this app as a reverse proxy; without this,
+// express-rate-limit (and req.ip generally) would see Render's proxy IP
+// instead of the real client IP, bucketing every user together.
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({
   origin: [
