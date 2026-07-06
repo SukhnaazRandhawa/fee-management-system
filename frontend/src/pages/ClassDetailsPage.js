@@ -5,6 +5,8 @@ import paymentService from '../services/paymentService';
 import studentService from '../services/studentService';
 import './ClassDetailsPage.css';
 
+const academicYearMonths = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+
 const fetchData = async (classId, setClassDetails, setStudents, setPayments, setError, setLoading) => {
     try {
         setLoading(true);
@@ -65,8 +67,6 @@ const ClassDetailsPage = () => {
         };
         fetchSession();
     }, []);
-
-    const academicYearMonths = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
 
     const processedStudentData = useMemo(() => {
         if (!classDetails || students.length === 0 || !currentAcademicYear) return [];

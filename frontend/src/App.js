@@ -2,7 +2,6 @@ import React from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthContext } from './context/AuthContext';
 import BilloraLandingPage from './pages/BilloraLandingPage';
 import ClassDetailsPage from './pages/ClassDetailsPage';
 import DashboardLayout from './pages/DashboardLayout';
@@ -17,8 +16,6 @@ import RegisterView from './pages/views/RegisterView';
 import ViewFeeHistory from './pages/views/ViewFeeHistory';
 
 function App() {
-  const { user } = React.useContext(AuthContext);
-  const isPrincipal = user?.role === 'principal';
   return (
     <Router>
       <div className="App">
