@@ -1,11 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../../context/AuthContext';
 import dashboardService from '../../services/dashboardService';
+import reportService from '../../services/reportService';
+
+const downloadCsv = (blobData, filename) => {
+    const url = window.URL.createObjectURL(new Blob([blobData]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+};
 
 const OverdueView = () => {
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [sortAsc, setSortAsc] = useState(false);
+    const [exporting, setExporting] = useState(false);
+    const { role } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchOverdue = async () => {
@@ -28,12 +43,31 @@ const OverdueView = () => {
         return sortAsc ? diff : -diff;
     });
 
+    const handleExport = async () => {
+        setExporting(true);
+        try {
+            const res = await reportService.getDuesCsv();
+            downloadCsv(res.data, 'overdue-students.csv');
+        } catch (err) {
+            alert('Failed to export CSV.');
+        } finally {
+            setExporting(false);
+        }
+    };
+
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
 
     return (
         <div style={{ padding: '2rem' }}>
-            <h2>Overdue Students</h2>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h2>Overdue Students</h2>
+                {role === 'principal' && (
+                    <button onClick={handleExport} disabled={exporting}>
+                        {exporting ? 'Exporting...' : 'Export CSV'}
+                    </button>
+                )}
+            </div>
             {sortedStudents.length === 0 ? (
                 <p>No overdue students. Everyone is paid up!</p>
             ) : (

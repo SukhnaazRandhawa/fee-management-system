@@ -3,7 +3,7 @@ const db = require('../db');
 const { protect } = require('../middleware/authMiddleware');
 const requirePrincipal = require('../middleware/requirePrincipal');
 const { getCurrentAcademicYear } = require('../utils/sessionUtils');
-const { calculateStudentDue } = require('../utils/feeUtils');
+const { calculateStudentDue, getAcademicSessionYears, getOverdueStudents } = require('../utils/feeUtils');
 
 const router = express.Router();
 
@@ -69,8 +69,7 @@ router.get('/summary', protect, async (req, res) => {
         const currentDate = new Date();
         //const currentDate = new Date('2026-04-02T10:00:00Z');
         const currentMonth = currentDate.getMonth(); // 0-11 (Jan-Dec)
-        const academicSessionStartYear = currentMonth < 3 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
-        const academicSessionEndYear = academicSessionStartYear + 1;
+        const { startYear: academicSessionStartYear, endYear: academicSessionEndYear } = getAcademicSessionYears(currentDate);
         const academicYearString = `${academicSessionStartYear}-${academicSessionEndYear}`;
         const academicYearCollectionResult = await db.query(
             `SELECT SUM(p.amount_paid) FROM payments p
@@ -174,52 +173,7 @@ router.get('/summary', protect, async (req, res) => {
 router.get('/overdue', protect, async (req, res) => {
     try {
         const schoolId = req.user.schoolId;
-        const currentDate = new Date();
-
-        const studentsResult = await db.query(
-            `SELECT s.id, s.student_id, s.name, s.phone, s.father_name, s.mother_name, s.email,
-                    s.previous_year_balance, c.name as class_name, c.monthly_fee, c.annual_fee
-             FROM students s
-             JOIN classes c ON s.class_id = c.id
-             WHERE c.school_id = $1`,
-            [schoolId]
-        );
-
-        const paymentsResult = await db.query(
-            `SELECT p.student_id, SUM(p.amount_paid) as total_paid
-             FROM payments p JOIN students s ON p.student_id = s.id JOIN classes c ON s.class_id = c.id
-             WHERE c.school_id = $1 AND p.voided_at IS NULL GROUP BY p.student_id`,
-            [schoolId]
-        );
-        const paymentsByStudent = paymentsResult.rows.reduce((acc, row) => {
-            acc[row.student_id] = parseFloat(row.total_paid);
-            return acc;
-        }, {});
-
-        const overdueStudents = studentsResult.rows
-            .map(student => {
-                const studentPaid = paymentsByStudent[student.id] || 0;
-                const amountOverdue = calculateStudentDue({
-                    previousYearBalance: parseFloat(student.previous_year_balance),
-                    monthlyFee: parseFloat(student.monthly_fee),
-                    annualFee: parseFloat(student.annual_fee),
-                    studentPaid,
-                    currentDate,
-                });
-                return {
-                    id: student.id,
-                    student_id: student.student_id,
-                    name: student.name,
-                    class_name: student.class_name,
-                    father_name: student.father_name,
-                    mother_name: student.mother_name,
-                    phone: student.phone,
-                    email: student.email,
-                    amount_overdue: amountOverdue,
-                };
-            })
-            .filter(s => s.amount_overdue > 0)
-            .sort((a, b) => b.amount_overdue - a.amount_overdue)
+        const overdueStudents = (await getOverdueStudents(schoolId))
             .map(s => ({ ...s, amount_overdue: s.amount_overdue.toFixed(2) }));
 
         res.json(overdueStudents);

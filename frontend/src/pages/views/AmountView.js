@@ -2,13 +2,26 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import dashboardService from '../../services/dashboardService';
 import paymentService from '../../services/paymentService';
+import reportService from '../../services/reportService';
 import './AmountView.css';
+
+const downloadCsv = (blobData, filename) => {
+    const url = window.URL.createObjectURL(new Blob([blobData]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+};
 
 const AmountView = () => {
     const [summary, setSummary] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [voidingId, setVoidingId] = useState(null);
+    const [exportingPeriod, setExportingPeriod] = useState(null);
     const { role } = useContext(AuthContext);
 
     const fetchSummary = async () => {
@@ -42,12 +55,42 @@ const AmountView = () => {
         }
     };
 
+    const handleExportCollections = async (period) => {
+        setExportingPeriod(period);
+        try {
+            const res = await reportService.getCollectionsCsv(period);
+            downloadCsv(res.data, `collections-${period}.csv`);
+        } catch (err) {
+            alert('Failed to export CSV.');
+        } finally {
+            setExportingPeriod(null);
+        }
+    };
+
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
 
     return (
         <div className="amount-view">
             <h2>Dashboard</h2>
+            {role === 'principal' && (
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                    <span style={{ alignSelf: 'center', marginRight: '0.25rem' }}>Export Collections:</span>
+                    {[
+                        { period: 'today', label: 'Today' },
+                        { period: 'month', label: 'This Month' },
+                        { period: 'year', label: 'This Academic Year' },
+                    ].map(({ period, label }) => (
+                        <button
+                            key={period}
+                            onClick={() => handleExportCollections(period)}
+                            disabled={exportingPeriod === period}
+                        >
+                            {exportingPeriod === period ? 'Exporting...' : label}
+                        </button>
+                    ))}
+                </div>
+            )}
             <div className="summary-cards">
                 <div className="summary-card">
                     <h3>Total Students</h3>
