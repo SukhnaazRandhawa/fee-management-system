@@ -34,7 +34,7 @@ const LoginPage = () => {
       await login(formData.email, formData.password);
       navigate('/dashboard'); // Redirect to dashboard on successful login
     } catch (error) {
-      setError('Login failed. Please check your credentials.');
+      setError(error.response?.data?.error || 'Login failed. Please check your credentials.');
     }
   };
 
