@@ -15,8 +15,13 @@ const getSummary = () => {
     return axios.get(API_URL + 'summary', { headers: getAuthHeader() });
 };
 
+const getOverdueStudents = () => {
+    return axios.get(API_URL + 'overdue', { headers: getAuthHeader() });
+};
+
 const dashboardService = {
     getSummary,
+    getOverdueStudents,
 };
 
 export default dashboardService; 

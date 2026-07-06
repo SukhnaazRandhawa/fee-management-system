@@ -3,6 +3,7 @@ const db = require('../db');
 const { protect } = require('../middleware/authMiddleware');
 const requirePrincipal = require('../middleware/requirePrincipal');
 const { getCurrentAcademicYear } = require('../utils/sessionUtils');
+const { calculateStudentDue } = require('../utils/feeUtils');
 
 const router = express.Router();
 
@@ -114,36 +115,16 @@ router.get('/summary', protect, async (req, res) => {
         }, {});
         
         let totalDue = 0;
-        
-        const academicYearMonths = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
 
         for (const student of allStudents) {
             const studentPaid = paymentsByStudent[student.student_db_id] || 0;
-            const annualFee = parseFloat(student.annual_fee);
-            const monthlyFee = parseFloat(student.monthly_fee);
-
-            const currentMonth = currentDate.getMonth(); // 0-11 (Jan-Dec)
-            // Academic year is Apr-Mar. If current month is Jan, Feb, or Mar (0,1,2), we are in the academic year that started LAST calendar year.
-            const academicSessionStartYear = currentMonth < 3 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
-
-            // Determine how many months of the session have passed.
-            const monthsPassed = academicYearMonths.filter((_, index) => {
-                // index 0 is April, 1 is May ... 9 is Jan, 10 is Feb, 11 is Mar
-                const monthDate = new Date(academicSessionStartYear + (index >= 9 ? 1 : 0), (index + 3) % 12, 1);
-                return currentDate >= monthDate;
-            }).length;
-
-            let totalFeesDueSoFar = 0;
-            // Only add annual fee if the academic session has started.
-            const sessionStartDate = new Date(academicSessionStartYear, 3, 1); // April 1st
-            if (currentDate >= sessionStartDate) {
-                totalFeesDueSoFar += annualFee;
-            }
-            
-            totalFeesDueSoFar += monthsPassed * monthlyFee;
-            
-            const currentBalance = totalFeesDueSoFar - studentPaid;
-            const studentTotalDue = currentBalance + parseFloat(student.previous_year_balance);
+            const studentTotalDue = calculateStudentDue({
+                previousYearBalance: parseFloat(student.previous_year_balance),
+                monthlyFee: parseFloat(student.monthly_fee),
+                annualFee: parseFloat(student.annual_fee),
+                studentPaid,
+                currentDate,
+            });
 
             if (studentTotalDue > 0) {
                 totalDue += studentTotalDue;
@@ -184,6 +165,67 @@ router.get('/summary', protect, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// @route   GET /api/dashboard/overdue
+// @desc    List all students with an outstanding balance (totalDue > 0)
+// @access  Private, Principal or Staff
+router.get('/overdue', protect, async (req, res) => {
+    try {
+        const schoolId = req.user.schoolId;
+        const currentDate = new Date();
+
+        const studentsResult = await db.query(
+            `SELECT s.id, s.student_id, s.name, s.phone, s.father_name, s.mother_name, s.email,
+                    s.previous_year_balance, c.name as class_name, c.monthly_fee, c.annual_fee
+             FROM students s
+             JOIN classes c ON s.class_id = c.id
+             WHERE c.school_id = $1`,
+            [schoolId]
+        );
+
+        const paymentsResult = await db.query(
+            `SELECT p.student_id, SUM(p.amount_paid) as total_paid
+             FROM payments p JOIN students s ON p.student_id = s.id JOIN classes c ON s.class_id = c.id
+             WHERE c.school_id = $1 AND p.voided_at IS NULL GROUP BY p.student_id`,
+            [schoolId]
+        );
+        const paymentsByStudent = paymentsResult.rows.reduce((acc, row) => {
+            acc[row.student_id] = parseFloat(row.total_paid);
+            return acc;
+        }, {});
+
+        const overdueStudents = studentsResult.rows
+            .map(student => {
+                const studentPaid = paymentsByStudent[student.id] || 0;
+                const amountOverdue = calculateStudentDue({
+                    previousYearBalance: parseFloat(student.previous_year_balance),
+                    monthlyFee: parseFloat(student.monthly_fee),
+                    annualFee: parseFloat(student.annual_fee),
+                    studentPaid,
+                    currentDate,
+                });
+                return {
+                    id: student.id,
+                    student_id: student.student_id,
+                    name: student.name,
+                    class_name: student.class_name,
+                    father_name: student.father_name,
+                    mother_name: student.mother_name,
+                    phone: student.phone,
+                    email: student.email,
+                    amount_overdue: amountOverdue,
+                };
+            })
+            .filter(s => s.amount_overdue > 0)
+            .sort((a, b) => b.amount_overdue - a.amount_overdue)
+            .map(s => ({ ...s, amount_overdue: s.amount_overdue.toFixed(2) }));
+
+        res.json(overdueStudents);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error fetching overdue students.' });
     }
 });
 

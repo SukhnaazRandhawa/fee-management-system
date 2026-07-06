@@ -11,6 +11,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import SignUpPage from './pages/SignUpPage';
 import AmountView from './pages/views/AmountView';
 import ClassesView from './pages/views/ClassesView';
+import OverdueView from './pages/views/OverdueView';
 import PayFeeView from './pages/views/PayFeeView';
 import RegisterView from './pages/views/RegisterView';
 import ViewFeeHistory from './pages/views/ViewFeeHistory';
@@ -33,6 +34,7 @@ function App() {
               <Route path="classes" element={<ClassesView />} />
               <Route path="classes/:classId" element={<ClassDetailsPage />} />
               <Route path="amount" element={<AmountView />} />
+              <Route path="overdue" element={<OverdueView />} />
               <Route path="register" element={<RegisterView />} />
               <Route path="payfee" element={<PayFeeView />} />
               <Route path="viewfeehistory" element={<ViewFeeHistory />} />
