@@ -9,6 +9,14 @@ const { initializeSessionsIfEmpty } = require('../utils/sessionUtils');
 
 const router = express.Router();
 
+// Render sits behind Cloudflare, so there are two proxy hops in front of
+// this app; relying on Express's trust-proxy hop count to resolve req.ip
+// landed on an unstable intermediate address instead of the real client.
+// Cloudflare's CF-Connecting-IP header is set at their edge and can't be
+// spoofed by the client, so prefer it when present. Fall back to req.ip
+// for local dev or if this ever moves off Render/Cloudflare.
+const getClientIp = (req) => rateLimit.ipKeyGenerator(req.headers['cf-connecting-ip'] || req.ip);
+
 // Normal users rarely mistype their password more than a couple of times;
 // 5 attempts per 15 minutes per IP is enough headroom without helping a
 // brute-force attempt make meaningful progress.
@@ -18,6 +26,7 @@ const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true, // only failed attempts count; a correct password always gets through
+  keyGenerator: getClientIp,
   message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
 });
 
@@ -29,6 +38,7 @@ const forgotPasswordLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: getClientIp,
   message: { error: 'Too many password reset requests. Please try again in 15 minutes.' },
 });
 
