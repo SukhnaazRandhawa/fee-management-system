@@ -120,6 +120,7 @@ router.post('/search', protect, async (req, res) => {
 // @desc    Update a student's information
 // @access  Private
 router.put('/:id', protect, async (req, res) => {
+  const client = await db.getClient();
   try {
     const { id } = req.params;
     const { class_id, name, father_name, mother_name, email, phone, previous_year_balance, status, address } = req.body;
@@ -144,18 +145,21 @@ router.put('/:id', protect, async (req, res) => {
 
     updateValues.push(id);
 
-    const result = await db.query(
+    await client.query('BEGIN');
+
+    const result = await client.query(
       `UPDATE students SET ${updateFields.join(', ')} WHERE id = $${idx} RETURNING *`,
       updateValues
     );
 
     if (result.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Student not found.' });
     }
 
     const updatedStudent = result.rows[0];
     // Update archived_students with the same student_id
-    await db.query(
+    await client.query(
       `UPDATE archived_students
        SET name = $1, father_name = $2, mother_name = $3, email = $4, phone = $5, address = $6
        WHERE student_id = $7`,
@@ -169,10 +173,15 @@ router.put('/:id', protect, async (req, res) => {
         updatedStudent.student_id
       ]
     );
+
+    await client.query('COMMIT');
     res.json(updatedStudent);
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error(err);
     res.status(500).json({ error: 'Server error during student update.' });
+  } finally {
+    client.release();
   }
 });
 
