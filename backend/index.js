@@ -1,4 +1,5 @@
 const express = require('express');
+const helmet = require('helmet');
 const cors = require('cors');
 require('dotenv').config({ path: './.env' });
 
@@ -10,6 +11,7 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Middleware
+app.use(helmet());
 app.use(cors({
   origin: [
     'https://billorafrontend.vercel.app' // replace with your actual Vercel domain if different
