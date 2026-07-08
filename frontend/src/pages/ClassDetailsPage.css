@@ -72,6 +72,49 @@ tbody tr:nth-child(even) {
     background-color: #faf6ff;
 }
 
+/* Freeze the ID and Name columns so they stay visible while the other
+   16 columns scroll underneath - without this, it's easy to lose track
+   of whose row you're looking at once you've scrolled past the month
+   columns. */
+.col-id,
+.col-name {
+    position: sticky;
+    z-index: 2;
+    background-color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* left offsets below assume box-sizing includes padding/border in
+       width, otherwise the second column's left offset drifts out of
+       sync with the first column's actual rendered width */
+    box-sizing: border-box;
+}
+
+.col-id {
+    left: 0;
+    width: 110px;
+    min-width: 110px;
+    max-width: 110px;
+}
+
+.col-name {
+    left: 110px;
+    width: 160px;
+    min-width: 160px;
+    max-width: 160px;
+    box-shadow: 2px 0 4px rgba(94, 44, 165, 0.08);
+}
+
+thead .col-id,
+thead .col-name {
+    background-color: #f9f1ff;
+    z-index: 3;
+}
+
+tbody tr:nth-child(even) .col-id,
+tbody tr:nth-child(even) .col-name {
+    background-color: #faf6ff;
+}
+
 td.paid {
     background-color: #d4edda;
     color: #155724;

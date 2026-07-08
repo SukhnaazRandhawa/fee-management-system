@@ -299,8 +299,8 @@ const ClassDetailsPage = () => {
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Student's Name</th>
+                            <th className="col-id">ID</th>
+                            <th className="col-name">Student's Name</th>
                             <th>Father's Name</th>
                             <th>Phone</th>
                             <th>Annual Fee</th>
@@ -314,8 +314,8 @@ const ClassDetailsPage = () => {
                     <tbody>
                         {processedStudentData.map(student => (
                             <tr key={student.id}>
-                                <td>{student.student_id}</td>
-                                <td>{student.name}</td>
+                                <td className="col-id">{student.student_id}</td>
+                                <td className="col-name">{student.name}</td>
                                 <td>{student.father_name}</td>
                                 <td>{student.phone}</td>
                                 <td className={student.annualStatus.className}>{student.annualStatus.text}</td>
