@@ -113,10 +113,34 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.2s;
+    margin: 0.3rem;
 }
 
 .receipt-footer button:hover {
     background-color: #145ab5;
+}
+
+@media (max-width: 768px) {
+    .receipt-container {
+        padding: 1.5rem 1.5rem;
+    }
+    .receipt-header h2 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .receipt-container {
+        padding: 1rem 1.2rem;
+    }
+    .receipt-info {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .receipt-footer button {
+        width: 100%;
+        margin: 0.3rem 0;
+    }
 }
 
 /* Print-specific styles */

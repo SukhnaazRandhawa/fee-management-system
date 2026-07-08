@@ -3,6 +3,7 @@ import { AuthContext } from '../../context/AuthContext';
 import dashboardService from '../../services/dashboardService';
 import reportService from '../../services/reportService';
 import downloadFile from '../../utils/downloadFile';
+import './DataTableView.css';
 
 const OverdueView = () => {
     const [students, setStudents] = useState([]);
@@ -49,8 +50,8 @@ const OverdueView = () => {
     if (error) return <div>{error}</div>;
 
     return (
-        <div style={{ padding: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="data-table-view">
+            <div className="controls-row" style={{ justifyContent: 'space-between' }}>
                 <h2>Overdue Students</h2>
                 {role === 'principal' && (
                     <button onClick={handleExport} disabled={exporting}>
@@ -61,8 +62,8 @@ const OverdueView = () => {
             {sortedStudents.length === 0 ? (
                 <p>No overdue students. Everyone is paid up!</p>
             ) : (
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+                <div className="table-scroll">
+                    <table>
                         <thead>
                             <tr>
                                 <th>Student ID</th>

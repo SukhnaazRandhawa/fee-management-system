@@ -1,0 +1,56 @@
+/* Shared minimal responsive styling for simple list/table views
+   (Overdue, View Fee History, Login History). Each page keeps its own
+   one-off inline tweaks; this covers the common container/table/
+   tablet-breakpoint pattern so it isn't repeated three times. */
+
+.data-table-view {
+    padding: 2rem;
+}
+
+.data-table-view h2 {
+    font-size: clamp(1.3rem, 3vw, 1.6rem);
+}
+
+.data-table-view .controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+}
+
+.data-table-view .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 1rem;
+}
+
+.data-table-view table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table-view th,
+.data-table-view td {
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e0c3fc;
+    white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+    .data-table-view {
+        padding: 1.2rem;
+    }
+
+    .data-table-view th,
+    .data-table-view td {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.92rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .data-table-view {
+        padding: 0.8rem;
+    }
+}

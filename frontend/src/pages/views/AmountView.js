@@ -64,7 +64,7 @@ const AmountView = () => {
         <div className="amount-view">
             <h2>Dashboard</h2>
             {role === 'principal' && (
-                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
                     <span style={{ alignSelf: 'center', marginRight: '0.25rem' }}>Export Collections:</span>
                     {[
                         { period: 'today', label: 'Today' },

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import classService from '../../services/classService';
 import downloadFile from '../../utils/downloadFile';
+import './DataTableView.css';
 
 const ViewFeeHistory = () => {
   const [classes, setClasses] = useState([]);
@@ -59,9 +60,9 @@ const ViewFeeHistory = () => {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
+    <div className="data-table-view">
       <h2>View Fee History</h2>
-      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+      <div className="controls-row">
         <select value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
           <option value="">Select Class</option>
           {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -80,8 +81,8 @@ const ViewFeeHistory = () => {
       {loading && <div>Loading...</div>}
       {error && <div style={{ color: 'red' }}>{error}</div>}
       {students.length > 0 && (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+        <div className="table-scroll">
+          <table>
             <thead>
               <tr>
                 <th>ID</th>
@@ -104,7 +105,7 @@ const ViewFeeHistory = () => {
                   <td>${parseFloat(s.previous_year_balance).toFixed(2)}</td>
                   <td>${parseFloat(s.final_balance).toFixed(2)}</td>
                   <td>{s.status}</td>
-                  <td>
+                  <td style={{ whiteSpace: 'normal' }}>
                     {s.payments && s.payments.length > 0 ? (
                       <ul style={{ paddingLeft: 16 }}>
                         {s.payments.map((p) => (

@@ -39,6 +39,7 @@
     padding: 2rem 1.5rem;
     margin-top: 1.5rem;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 table {
@@ -125,6 +126,37 @@ td.partial {
     color: #fff;
 }
 
+/* This table has 19 columns (ID, Name, Father's Name, Phone, Annual Fee,
+   12 month columns, Previous Balance, Current Balance, Due,
+   Modifications), so it will always need horizontal scrolling below
+   roughly 1400-1600px - that's inherent to the column count, not
+   something spacing alone can fix. These breakpoints just tighten cell
+   density so there's less to scroll through and the scroll itself
+   (via -webkit-overflow-scrolling: touch above) is smooth on tablets. */
+@media (max-width: 1200px) {
+    .table-card {
+        padding: 1.5rem 1rem;
+    }
+    th, td {
+        padding: 0.6rem 0.55rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .table-card {
+        padding: 1.2rem 0.8rem;
+    }
+    th, td {
+        padding: 0.55rem 0.5rem;
+        font-size: 0.9rem;
+    }
+    .modify-btn, .delete-btn {
+        padding: 0.35rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
 @media (max-width: 900px) {
     .class-details-view {
         padding: 1rem 0.2rem;
@@ -135,7 +167,7 @@ td.partial {
     table {
         font-size: 0.95rem;
     }
-} 
+}
 
 .import-modal-overlay {
   position: fixed;

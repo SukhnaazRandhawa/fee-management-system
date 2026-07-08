@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import dashboardService from '../../services/dashboardService';
+import './DataTableView.css';
 
 const LoginHistoryView = () => {
     const [records, setRecords] = useState([]);
@@ -26,13 +27,13 @@ const LoginHistoryView = () => {
     if (error) return <div>{error}</div>;
 
     return (
-        <div style={{ padding: '2rem' }}>
+        <div className="data-table-view">
             <h2>Login History</h2>
             {records.length === 0 ? (
                 <p>No login records yet.</p>
             ) : (
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+                <div className="table-scroll">
+                    <table>
                         <thead>
                             <tr>
                                 <th>Email</th>
