@@ -72,6 +72,11 @@ const ViewFeeHistory = () => {
         </select>
         <button onClick={handleView} disabled={!selectedClass || !selectedYear}>View</button>
       </div>
+      {selectedClass && !loading && years.length === 0 && (
+        <div style={{ color: '#666', marginBottom: '1rem' }}>
+          No archived fee history yet — this appears after your first year-end session rollover.
+        </div>
+      )}
       {loading && <div>Loading...</div>}
       {error && <div style={{ color: 'red' }}>{error}</div>}
       {students.length > 0 && (
