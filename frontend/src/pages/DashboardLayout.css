@@ -419,7 +419,7 @@
   display: none;
   background: none;
   border: none;
-  color: #fff;
+  color: #5E2CA5;
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0.5rem;
@@ -474,9 +474,10 @@
   }
   
   .main-header {
-    padding: 1rem 1.5rem 1rem 1.5rem;
+    /* Extra left padding clears the fixed mobile-nav-toggle button */
+    padding: 1rem 1.5rem 1rem 4.5rem;
   }
-  
+
   .main-body {
     padding: 1.5rem;
   }
@@ -497,8 +498,15 @@
   
   .mobile-nav-toggle {
     display: flex;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(94,44,165,0.15);
   }
-  
+
   .school-name {
     font-size: 1.2rem;
   }
@@ -527,7 +535,8 @@
   }
   
   .main-header {
-    padding: 1rem 1rem 0.5rem 1rem;
+    /* Extra left padding clears the fixed mobile-nav-toggle button */
+    padding: 1rem 1rem 0.5rem 4rem;
     flex-direction: column;
     gap: 0.5rem;
     align-items: flex-start;
@@ -594,7 +603,8 @@
   }
   
   .main-header {
-    padding: 0.8rem 0.8rem 0.3rem 0.8rem;
+    /* Extra left padding clears the fixed mobile-nav-toggle button */
+    padding: 0.8rem 0.8rem 0.3rem 3.8rem;
   }
   
   .school-title {

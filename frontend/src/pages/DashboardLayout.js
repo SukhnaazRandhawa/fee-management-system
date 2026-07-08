@@ -12,6 +12,7 @@ const DashboardLayout = () => {
     const [showPopup, setShowPopup] = React.useState(false);
     const [currentSession, setCurrentSession] = useState('');
     const [menuOpen, setMenuOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const menuRef = useRef();
 
     useEffect(() => {
@@ -92,16 +93,28 @@ const DashboardLayout = () => {
 
     return (
         <div className="dashboard-container">
-            <aside className="sidebar">
-                <Link to="/" className="sidebar-logo">Billora</Link>
+            <button
+                type="button"
+                className="mobile-nav-toggle"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Open navigation menu"
+            >
+                &#9776;
+            </button>
+            <div
+                className={`sidebar-overlay${sidebarOpen ? ' active' : ''}`}
+                onClick={() => setSidebarOpen(false)}
+            />
+            <aside className={`sidebar${sidebarOpen ? ' active' : ''}`}>
+                <Link to="/" className="sidebar-logo" onClick={() => setSidebarOpen(false)}>Billora</Link>
                 <nav className="sidebar-nav">
-                    <Link to="classes">Classes</Link>
-                    <Link to="amount">Dashboard</Link>
-                    <Link to="overdue">Overdue</Link>
-                    {role === 'principal' && <Link to="login-history">Login History</Link>}
-                    <Link to="register">Register</Link>
-                    <Link to="payfee">Pay Fee</Link>
-                    <Link to="viewfeehistory">View Fee History</Link>
+                    <Link to="classes" onClick={() => setSidebarOpen(false)}>Classes</Link>
+                    <Link to="amount" onClick={() => setSidebarOpen(false)}>Dashboard</Link>
+                    <Link to="overdue" onClick={() => setSidebarOpen(false)}>Overdue</Link>
+                    {role === 'principal' && <Link to="login-history" onClick={() => setSidebarOpen(false)}>Login History</Link>}
+                    <Link to="register" onClick={() => setSidebarOpen(false)}>Register</Link>
+                    <Link to="payfee" onClick={() => setSidebarOpen(false)}>Pay Fee</Link>
+                    <Link to="viewfeehistory" onClick={() => setSidebarOpen(false)}>View Fee History</Link>
                 </nav>
             </aside>
             <main className="main-content">
