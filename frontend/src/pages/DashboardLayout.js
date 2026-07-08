@@ -119,7 +119,7 @@ const DashboardLayout = () => {
             </aside>
             <main className="main-content">
                 <header className="main-header">
-                    <div>
+                    <div className="header-title-group">
                         <h2 className="school-title">{user?.schoolName}</h2>
                         <div className="session-label">Current Session : {currentSession || 'Loading...'}</div>
                     </div>

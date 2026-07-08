@@ -279,11 +279,21 @@
   border-bottom: 1.5px solid #e0c3fc;
 }
 
+/* Lets the title/session text shrink and wrap instead of pushing the
+   three-dot menu out of the row or forcing the header to wrap onto a
+   new line - min-width: 0 is required for a flex child to shrink below
+   its content's natural width. */
+.header-title-group {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
 .school-title {
   font-size: 2rem;
   font-weight: 700;
   color: #2d2d2d;
   margin-bottom: 0.3rem;
+  overflow-wrap: break-word;
 }
 
 .session-label {
@@ -302,6 +312,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Never shrink or wrap onto its own line, regardless of how little
+     room the title text leaves it */
+  flex-shrink: 0;
 }
 
 .main-body {
@@ -535,13 +548,14 @@
   }
   
   .main-header {
-    /* Extra left padding clears the fixed mobile-nav-toggle button */
+    /* Extra left padding clears the fixed mobile-nav-toggle button.
+       Stays a row (not column) so the three-dot menu never drops onto
+       its own line - .header-title-group shrinks/wraps instead. */
     padding: 1rem 1rem 0.5rem 4rem;
-    flex-direction: column;
     gap: 0.5rem;
     align-items: flex-start;
   }
-  
+
   .school-title {
     font-size: 1.5rem;
   }
