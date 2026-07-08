@@ -183,6 +183,28 @@ router.get('/overdue', protect, async (req, res) => {
     }
 });
 
+// @route   GET /api/dashboard/login-history
+// @desc    Attendance-style login history (first login per user per day)
+//          for the requester's school only.
+// @access  Private, Principal only
+router.get('/login-history', protect, requirePrincipal, async (req, res) => {
+    try {
+        const schoolId = req.school.schoolId;
+        const result = await db.query(
+            `SELECT l.login_date, l.first_login_at, u.email, u.role
+             FROM login_records l
+             JOIN users u ON l.user_id = u.id
+             WHERE u.school_id = $1
+             ORDER BY l.login_date DESC, l.first_login_at DESC`,
+            [schoolId]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error fetching login history.' });
+    }
+});
+
 // GET /api/dashboard/session - get current session
 router.get('/session', protect, async (req, res) => {
     try {

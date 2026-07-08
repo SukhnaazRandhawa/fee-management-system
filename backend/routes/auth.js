@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const db = require('../db');
 const sendEmail = require('../utils/sendEmail');
 const { initializeSessionsIfEmpty } = require('../utils/sessionUtils');
+const { recordFirstLoginOfDay } = require('../utils/loginTracking');
 
 const router = express.Router();
 
@@ -114,7 +115,10 @@ router.post('/user-login', loginLimiter, async (req, res) => {
     
     // Initialize sessions table if empty (for first-time setup)
     await initializeSessionsIfEmpty(user.school_id);
-    
+
+    // Attendance-style login tracking (first login of the day only)
+    await recordFirstLoginOfDay(user.id);
+
     // Get school name for display
     const schoolResult = await db.query('SELECT name FROM schools WHERE id = $1', [user.school_id]);
     const schoolName = schoolResult.rows.length > 0 ? schoolResult.rows[0].name : '';
