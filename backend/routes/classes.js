@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../db');
 const { protect } = require('../middleware/authMiddleware');
+const { generateReceiptPdf, formatReceiptNumber } = require('../utils/receiptPdf');
 
 const router = express.Router();
 
@@ -229,7 +230,7 @@ router.get('/:classId/fee-history', protect, async (req, res) => {
     // For each student, get their payments
     for (const student of students) {
       const paymentsResult = await db.query(
-        `SELECT amount_paid, payment_date, payment_method FROM archived_payments WHERE archived_student_id = $1 ORDER BY payment_date ASC`,
+        `SELECT id, amount_paid, payment_date, payment_method, voided_at FROM archived_payments WHERE archived_student_id = $1 ORDER BY payment_date ASC`,
         [student.id]
       );
       student.payments = paymentsResult.rows;
@@ -260,6 +261,57 @@ router.get('/:classId/fee-history-years', protect, async (req, res) => {
   }
 });
 
+// @route   GET /api/classes/archived-payments/:id/receipt
+// @desc    Generate a PDF receipt for a historical (archived) payment shown
+//          in fee history. Kept separate from live payment receipts since
+//          archived_payments is its own table/id sequence with no link back
+//          to the original live payments row.
+// @access  Private (principal or staff)
+router.get('/archived-payments/:id/receipt', protect, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const schoolId = req.school.schoolId;
 
+    const result = await db.query(
+      `SELECT ap.id, ap.amount_paid, ap.payment_method, ap.payment_date, ap.voided_at,
+              astu.academic_year, astu.student_id as student_code, astu.name as student_name,
+              astu.father_name, astu.class_name, sc.name as school_name
+       FROM archived_payments ap
+       JOIN archived_students astu ON ap.archived_student_id = astu.id
+       JOIN schools sc ON astu.school_id = sc.id
+       WHERE ap.id = $1 AND astu.school_id = $2`,
+      [id, schoolId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Payment not found or not authorized.' });
+    }
+
+    const payment = result.rows[0];
+    if (payment.voided_at) {
+      return res.status(400).json({ error: 'This payment has been voided and no longer has a valid receipt.' });
+    }
+
+    const receiptNumber = formatReceiptNumber(payment.id, 'archived');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${receiptNumber}.pdf"`);
+
+    await generateReceiptPdf(res, {
+      receiptNumber,
+      schoolName: payment.school_name,
+      studentIdCode: payment.student_code,
+      studentName: payment.student_name,
+      fatherName: payment.father_name,
+      className: payment.class_name,
+      academicYear: payment.academic_year,
+      amountPaid: payment.amount_paid,
+      paymentMethod: payment.payment_method,
+      paymentDate: payment.payment_date,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error generating receipt.' });
+  }
+});
 
 module.exports = router;

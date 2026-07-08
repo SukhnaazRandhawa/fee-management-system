@@ -48,6 +48,10 @@ const getArchivedClassesForYear = (year) => {
     return axios.get(API_URL + `archived-for-year?year=${year}`, { headers: getAuthHeader() });
 };
 
+const getArchivedReceiptPdf = (archivedPaymentId) => {
+    return axios.get(API_URL + `archived-payments/${archivedPaymentId}/receipt`, { headers: getAuthHeader(), responseType: 'blob' });
+};
+
 const classService = {
     getClasses,
     updateClass,
@@ -58,6 +62,7 @@ const classService = {
     importStudents,
     getAllClassesForHistory,
     getArchivedClassesForYear,
+    getArchivedReceiptPdf,
 };
 
 export default classService; 

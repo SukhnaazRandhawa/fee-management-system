@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('../db');
 const { protect } = require('../middleware/authMiddleware');
 const requirePrincipal = require('../middleware/requirePrincipal');
+const { generateReceiptPdf, formatReceiptNumber } = require('../utils/receiptPdf');
 
 const router = express.Router();
 
@@ -166,4 +167,55 @@ router.put('/:id/void', protect, requirePrincipal, async (req, res) => {
   }
 });
 
-module.exports = router; 
+// @route   GET /api/payments/:id/receipt
+// @desc    Generate a PDF receipt for a current-year (live) payment
+// @access  Private
+router.get('/:id/receipt', protect, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const schoolId = req.school.schoolId;
+
+    const result = await db.query(
+      `SELECT p.id, p.amount_paid, p.payment_method, p.payment_date, p.academic_year, p.voided_at,
+              s.student_id as student_code, s.name as student_name, s.father_name,
+              c.name as class_name, sc.name as school_name
+       FROM payments p
+       JOIN students s ON p.student_id = s.id
+       JOIN classes c ON s.class_id = c.id
+       JOIN schools sc ON c.school_id = sc.id
+       WHERE p.id = $1 AND c.school_id = $2`,
+      [id, schoolId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Payment not found or not authorized.' });
+    }
+
+    const payment = result.rows[0];
+    if (payment.voided_at) {
+      return res.status(400).json({ error: 'This payment has been voided and no longer has a valid receipt.' });
+    }
+
+    const receiptNumber = formatReceiptNumber(payment.id, 'live');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${receiptNumber}.pdf"`);
+
+    await generateReceiptPdf(res, {
+      receiptNumber,
+      schoolName: payment.school_name,
+      studentIdCode: payment.student_code,
+      studentName: payment.student_name,
+      fatherName: payment.father_name,
+      className: payment.class_name,
+      academicYear: payment.academic_year,
+      amountPaid: payment.amount_paid,
+      paymentMethod: payment.payment_method,
+      paymentDate: payment.payment_date,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error generating receipt.' });
+  }
+});
+
+module.exports = router;

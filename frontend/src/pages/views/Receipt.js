@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import paymentService from '../../services/paymentService';
+import downloadFile from '../../utils/downloadFile';
 import './Receipt.css';
 
 const Receipt = ({ paymentDetails, studentDetails, schoolDetails, onPrint, onClose }) => {
     console.log('Receipt component received:', { paymentDetails, studentDetails, schoolDetails });
-    
+    const [downloading, setDownloading] = useState(false);
+
     if (!paymentDetails || !studentDetails) {
         console.log('Receipt: Missing required data');
         return null;
@@ -23,6 +26,18 @@ const Receipt = ({ paymentDetails, studentDetails, schoolDetails, onPrint, onClo
         : new Date().toLocaleDateString();
 
     console.log('Receipt formatted data:', { formattedAmount, formattedDate, amount_paid, payment_date });
+
+    const handleDownloadPdf = async () => {
+        setDownloading(true);
+        try {
+            const res = await paymentService.getReceiptPdf(id);
+            downloadFile(res.data, `receipt-${id}.pdf`);
+        } catch (err) {
+            alert('Failed to download receipt.');
+        } finally {
+            setDownloading(false);
+        }
+    };
 
     return (
         <div className="receipt-overlay">
@@ -80,6 +95,9 @@ const Receipt = ({ paymentDetails, studentDetails, schoolDetails, onPrint, onClo
                 </div>
                 <div className="receipt-footer no-print">
                     <button onClick={onPrint}>Print Receipt</button>
+                    <button onClick={handleDownloadPdf} disabled={downloading}>
+                        {downloading ? 'Downloading...' : 'Download PDF Receipt'}
+                    </button>
                 </div>
             </div>
         </div>

@@ -2,17 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import dashboardService from '../../services/dashboardService';
 import reportService from '../../services/reportService';
-
-const downloadCsv = (blobData, filename) => {
-    const url = window.URL.createObjectURL(new Blob([blobData]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-};
+import downloadFile from '../../utils/downloadFile';
 
 const OverdueView = () => {
     const [students, setStudents] = useState([]);
@@ -47,7 +37,7 @@ const OverdueView = () => {
         setExporting(true);
         try {
             const res = await reportService.getDuesCsv();
-            downloadCsv(res.data, 'overdue-students.csv');
+            downloadFile(res.data, 'overdue-students.csv');
         } catch (err) {
             alert('Failed to export CSV.');
         } finally {

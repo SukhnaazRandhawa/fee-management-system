@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import classService from '../../services/classService';
+import downloadFile from '../../utils/downloadFile';
 
 const ViewFeeHistory = () => {
   const [classes, setClasses] = useState([]);
@@ -9,6 +10,19 @@ const ViewFeeHistory = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [downloadingId, setDownloadingId] = useState(null);
+
+  const handleDownloadReceipt = async (paymentId) => {
+    setDownloadingId(paymentId);
+    try {
+      const res = await classService.getArchivedReceiptPdf(paymentId);
+      downloadFile(res.data, `receipt-${paymentId}.pdf`);
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to download receipt.');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   useEffect(() => {
     // Fetch all classes (current + historical)
@@ -88,9 +102,20 @@ const ViewFeeHistory = () => {
                   <td>
                     {s.payments && s.payments.length > 0 ? (
                       <ul style={{ paddingLeft: 16 }}>
-                        {s.payments.map((p, i) => (
-                          <li key={i}>
+                        {s.payments.map((p) => (
+                          <li key={p.id} style={p.voided_at ? { textDecoration: 'line-through', opacity: 0.6 } : undefined}>
                             {new Date(p.payment_date).toLocaleDateString()} - ${parseFloat(p.amount_paid).toFixed(2)} ({p.payment_method})
+                            {p.voided_at ? (
+                              <span style={{ marginLeft: '0.5rem', fontStyle: 'italic' }}> (Voided)</span>
+                            ) : (
+                              <button
+                                style={{ marginLeft: '0.5rem' }}
+                                disabled={downloadingId === p.id}
+                                onClick={() => handleDownloadReceipt(p.id)}
+                              >
+                                {downloadingId === p.id ? 'Downloading...' : 'Receipt'}
+                              </button>
+                            )}
                           </li>
                         ))}
                       </ul>

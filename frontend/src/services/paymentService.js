@@ -23,10 +23,15 @@ const voidPayment = (paymentId) => {
     return axios.put(API_URL + `${paymentId}/void`, {}, { headers: getAuthHeader() });
 };
 
+const getReceiptPdf = (paymentId) => {
+    return axios.get(API_URL + `${paymentId}/receipt`, { headers: getAuthHeader(), responseType: 'blob' });
+};
+
 const paymentService = {
     makePayment,
     getPaymentsByClass,
     voidPayment,
+    getReceiptPdf,
 };
 
 export default paymentService; 

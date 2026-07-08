@@ -3,18 +3,8 @@ import { AuthContext } from '../../context/AuthContext';
 import dashboardService from '../../services/dashboardService';
 import paymentService from '../../services/paymentService';
 import reportService from '../../services/reportService';
+import downloadFile from '../../utils/downloadFile';
 import './AmountView.css';
-
-const downloadCsv = (blobData, filename) => {
-    const url = window.URL.createObjectURL(new Blob([blobData]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-};
 
 const AmountView = () => {
     const [summary, setSummary] = useState(null);
@@ -59,7 +49,7 @@ const AmountView = () => {
         setExportingPeriod(period);
         try {
             const res = await reportService.getCollectionsCsv(period);
-            downloadCsv(res.data, `collections-${period}.csv`);
+            downloadFile(res.data, `collections-${period}.csv`);
         } catch (err) {
             alert('Failed to export CSV.');
         } finally {
